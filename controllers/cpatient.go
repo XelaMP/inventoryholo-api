@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"database/sql"
-
+	"github.com/XelaMP/inventoryholo-api"
 	)
 
 type PatientController struct {
