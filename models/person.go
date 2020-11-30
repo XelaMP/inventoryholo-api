@@ -4,7 +4,7 @@ import "fmt"
 
 type Person struct {
 
-	IdPerson string `json:"id_person"`
+	IdPerson int `json:"id_person"`
 	Name string `json:"name"`
 	LastName string `json:"last_name"`
 	Phone int `json:"phone"`

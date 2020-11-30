@@ -2,13 +2,53 @@ package controllers
 
 import (
 	"database/sql"
-	"github.com/XelaMP/inventoryholo-api"
-	)
+	"github.com/XelaMP/inventoryholo-api/models"
+)
 
-type PatientController struct {
+type PersonController struct {
 	Db *sql.DB
 }
 
-func (pc PatientController) FindAll () (patients [] models.Person, error)  {
-	rows, err := pc.Db.Query("select * from Person")
+func (personc PersonController) FindAll() ( [] models.Person, error )  {
+		rows, err := personc.Db.Query("select from Person")
+	if err != nil {
+		return nil, err
+
+		
+	} else {
+		var persons [] models.Person
+		for rows.Next() {
+			var id int
+			var name string
+			var lastname string
+			var phone int
+			var adress string
+			var dni int
+			var mail string
+			err2 := rows.Scan(&id, &name, &lastname, & phone, &adress, &dni, &mail)
+
+			if err2 != nil {
+				return nil, err2
+			}
+
+				else {
+				person := models.Person{
+				IdPerson: id,
+				Name:     name,
+				LastName: lastname,
+				Phone:    phone,
+				Adress:   adress,
+				Dni:      dni,
+				mail:     mail,
+			}
+			persons = append(persons, person)
+
+		}
+
+
+		}
+			return persons, nil
+	}
+	
 }
+
