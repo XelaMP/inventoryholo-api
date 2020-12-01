@@ -66,7 +66,7 @@ func CreateCategory(item models.Category) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-	return result.LastInsertId()
+	return result.RowsAffected()
 }
 
 func UpdateCategory(item models.Category) (int64, error) {
