@@ -8,19 +8,15 @@ import (
 
 func main ()  {
 	Demo1()
-	
-
 }
 
 func Demo1()  {
 	db, err := helper.GetDB()
 	if err != nil {
 		fmt.Println(err)
-		
 	} else {
-		personc := controllers.PatientController{
+		personc := controllers.PersonController{
 			Db: db,
-
 		}
 		persons, err2 := personc.FindAll()
 		if err2 != nil {

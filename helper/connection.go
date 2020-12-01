@@ -6,7 +6,7 @@ import (
 )
 
 func GetDB() (db *sql.DB, err error) {
-	db, err = sql.Open("mssql","server=localhost;user id=sa; password=123456")
+	db, err = sql.Open("mssql","server=localhost;user id=sa; password=123456; port=1433; database=InvetoryHolo")
 	return
 
 }
