@@ -1,18 +1,19 @@
 package models
 
 type SystemUser struct {
-	IdUser       int `json:"_id"`
+	ID       int    `json:"_id"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-	rol string    `json:"typeUser"`
-	IdPerson int `json:"personId"`
+	Rol      string `json:"rol"`
+	IdPerson int    `json:"personId"`
+}
+
+type UserResult struct {
+	ID   string `json:"_id"`
+	Role string `json:"role"`
 }
 
 type UserLogin struct {
-	User string
+	User     string
 	Password string
-
-
 }
-
-
