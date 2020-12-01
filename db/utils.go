@@ -14,11 +14,11 @@ func fieldString(fields []string) string {
 
 func valuesString(fields []string) string {
 	values := ""
-	for i := range fields {
-		if i == 0 {
-			values = "?"
-		} else {
-			values = values + ", ?"
+	for i, field := range fields {
+		if i == 1 {
+			values = "@" + field
+		} else if i != 0 {
+			values = values + ", @" + field
 		}
 	}
 	return values
