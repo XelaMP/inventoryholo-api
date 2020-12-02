@@ -1,12 +1,38 @@
 package db
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"github.com/XelaMP/inventoryholo-api/constants"
 	"github.com/XelaMP/inventoryholo-api/models"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 )
+
+func GetSystemUsers() [] models.SystemUser {
+	res := make([]models.SystemUser, 0)
+	var item models.SystemUser
+
+	tsql := fmt.Sprintf(QuerySystemUser["list"].Q)
+	rows, err := DB.Query(tsql)
+
+	if err != nil {
+		fmt.Println("Error reading rows: " + err.Error())
+		return res
+	}
+	for rows.Next(){
+		err := rows.Scan(&item.ID, &item.Username, &item.Rol, &item.Password)
+		if err != nil {
+			log.Println(err)
+			return res
+		} else{
+			res = append(res, item)
+		}
+	}
+	defer rows.Close()
+	return res
+}
 
 func GetSystemUser(id string) []models.SystemUser {
 	res := make([]models.SystemUser, 0)
@@ -31,6 +57,54 @@ func GetSystemUser(id string) []models.SystemUser {
 	defer rows.Close()
 	return res
 }
+func CreateSystemUser(item models.SystemUser) (int64, error) {
+	ctx := context.Background()
+	tsql := fmt.Sprintf(QuerySystemUser["insert"].Q)
+	result, err := DB.ExecContext(
+		ctx,
+		tsql,
+		sql.Named("Username", item.Username),
+		sql.Named("Password", item.Password),
+		sql.Named("Rol",item.Rol),
+		sql.Named("IdPerson",item.IdPerson))
+	if err != nil {
+		return -1, err
+	}
+	return result.RowsAffected()
+}
+
+func UpdateSystemUser(item models.SystemUser) (int64, error) {
+	ctx := context.Background()
+	tsql := fmt.Sprintf(QuerySystemUser["update"].Q)
+	result, err := DB.ExecContext(
+		ctx,
+		tsql,
+		sql.Named("ID", item.ID),
+		sql.Named("Username", item.Username),
+		sql.Named("Password",item.Password),
+		sql.Named("Rol",item.Rol),
+		sql.Named("IdPerson",item.IdPerson))
+
+	if err != nil {
+		return -1, err
+	}
+	return result.RowsAffected()
+}
+func DeleteSystemUser(id string) (int64, error) {
+	ctx := context.Background()
+	tsql := fmt.Sprintf(QuerySystemUser["delete"].Q)
+	result, err := DB.ExecContext(
+		ctx,
+		tsql,
+		sql.Named("ID", id))
+	if err != nil {
+		return -1, err
+	}
+	return result.RowsAffected()
+}
+
+
+
 
 func GetSystemUserFromUserName(userName string) []models.SystemUser {
 	res := make([]models.SystemUser, 0)

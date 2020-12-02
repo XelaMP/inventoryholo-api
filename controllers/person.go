@@ -10,43 +10,41 @@ import (
 	"strconv"
 )
 
-func GetSystemUser(w http.ResponseWriter, r *http.Request) {
+func GetPersons(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	items := db.GetPersons()
+	_ = json.NewEncoder(w).Encode(items)
+}
+func GetPerson(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 
-	items := db.GetSystemUser(id)
+	items := db.GetPerson(id)
 
 	_ = json.NewEncoder(w).Encode(items[0])
 }
-
-func GetSystemUsers (w http.ResponseWriter, r *http.Request)  {
-	w.Header().Set("Content-Type", "application/json")
-	items := db.GetSystemUsers()
-	_ = json.NewEncoder(w).Encode(items)
-
-}
-
-func CreateSystemUser(w http.ResponseWriter, r *http.Request) {
+func CreatePerson(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var item models.SystemUser
+	var item models.Person
 	_ = json.NewDecoder(r.Body).Decode(&item)
-	result, err := db.CreateSystemUser(item)
+	result, err := db.CreatePerson(item)
 	if err != nil {
 		log.Println(err)
 	}
 
 	_ = json.NewEncoder(w).Encode(result)
 }
-func UpdateSystemUser(w http.ResponseWriter, r *http.Request) {
+
+func UpdatePerson(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
-	var item models.SystemUser
+	var item models.Person
 	_ = json.NewDecoder(r.Body).Decode(&item)
 	item.ID, _ = strconv.Atoi(id)
-	result, err := db.UpdateSystemUser(item)
+	result, err := db.UpdatePerson(item)
 	if err != nil {
 		log.Println(err)
 	}
@@ -54,15 +52,14 @@ func UpdateSystemUser(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-func DeleteSystemUser(w http.ResponseWriter, r *http.Request) {
+func DeletePerson(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
-	result, err := db.DeleteSystemUser(id)
+	result, err := db.DeletePerson(id)
 	if err != nil {
 		log.Println(err)
 	}
 
 	_ = json.NewEncoder(w).Encode(result)
 }
-
