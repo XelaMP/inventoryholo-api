@@ -25,7 +25,7 @@ var QuerySystemUser = map[string]*queryConfig{
 	"updatePassword": {Q: "update " + user.Name + " set v_Password = @Password where " + user.Fields[0] + " = %s;"},
 	"list": {Q: "select " + fieldString(user.Fields) + " from " + user.Name + ";"},
 	//"getidPerson" : {Q: "select" + fieldString(user.Fields)+ "from" + person.Name + "where" + person.Fields[0] + "= %s;"},
-	"insert": {Q: "insert into "+ user.Name + "("+ fieldString(user.Fields)+  ") values (" +valuesString(user.Fields) + ");"},
+	"insert": {Q: "insert into "+ user.Name + "("+ fieldStringInsert(user.Fields)+  ") values (" +valuesString(user.Fields) + ");"},
 	"update": {Q: "update " + user.Name + " set " + updatesString(user.Fields) + " where " + user.Fields[0] + " = @ID;"},
 	"delete": {Q: "delete from " + user.Name + " where " + user.Fields[0] + " = @ID"},
 
@@ -54,7 +54,7 @@ var person = TableDB{
 var queryPerson = map[string]*queryConfig{
 	"get": {Q: "select " + fieldString(person.Fields) + " from " + person.Name + " where " + person.Fields[0] + " =%s;"},
 	"list": {Q: "select " + fieldString(person.Fields) + " from " +person.Name + ";"},
-	"insert": {Q: "insert into " + person.Name + "("+ fieldString(person.Fields) + ") values (" + valuesString(person.Fields) + ");"},
+	"insert": {Q: "insert into " + person.Name + "("+ fieldStringInsert(person.Fields) + ") values (" + valuesString(person.Fields) + ");"},
 	"update": {Q: "update " + person.Name + " set " + updatesString(person.Fields) + " where " + person.Fields[0] + " = @ID;"},
 	"delete": {Q: "delete from " + person.Name + " where " + person.Fields[0] + " = @ID"},
 

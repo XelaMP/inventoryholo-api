@@ -16,8 +16,23 @@ func GetSystemUser(w http.ResponseWriter, r *http.Request) {
 	id, _ := params["id"]
 
 	items := db.GetSystemUser(id)
+	person := db.GetPerson(strconv.Itoa(int(items[0].IdPerson)))
 
-	_ = json.NewEncoder(w).Encode(items[0])
+	userPerson := models.UserPerson{
+		ID:       items[0].ID,
+		PersonID: person[0].ID,
+		Username: items[0].Username,
+		Password: items[0].Password,
+		Rol:      items[0].Rol,
+		Name:     person[0].Name,
+		LastName: person[0].LastName,
+		Phone:    person[0].Phone,
+		Adress:   person[0].Adress,
+		Dni:      person[0].Dni,
+		Mail:     person[0].Mail,
+	}
+
+	_ = json.NewEncoder(w).Encode(userPerson)
 }
 
 func GetSystemUsers (w http.ResponseWriter, r *http.Request)  {
