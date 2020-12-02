@@ -5,7 +5,7 @@ type SystemUser struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Rol      string `json:"rol"`
-	IdPerson int    `json:"personId"`
+	IdPerson int64  `json:"personId"`
 }
 
 type UserResult struct {
@@ -16,4 +16,16 @@ type UserResult struct {
 type UserLogin struct {
 	User     string
 	Password string
+}
+
+type UserPerson struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Rol      string `json:"rol"`
+	Name     string `json:"name"`
+	LastName string `json:"last_name"`
+	Phone    int    `json:"phone"`
+	Adress   string `json:"adress"`
+	Dni      int    `json:"dni"`
+	Mail     string `json:"mail"`
 }

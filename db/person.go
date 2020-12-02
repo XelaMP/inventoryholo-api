@@ -20,7 +20,7 @@ func GetPersons() []models.Person {
 		return res
 	}
 	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name,&item.LastName,&item.Dni,&item.Phone,&item.Address,&item.Mail)
+		err := rows.Scan(&item.ID, &item.Name,&item.LastName,&item.Dni,&item.Phone,&item.Adress,&item.Mail)
 		if err != nil {
 			log.Println(err)
 			return res
@@ -43,7 +43,7 @@ func GetPerson(id string) []models.Person {
 		return res
 	}
 	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name,&item.LastName,&item.Dni,&item.Phone,&item.Address,&item.Mail)
+		err := rows.Scan(&item.ID, &item.Name,&item.LastName,&item.Dni,&item.Phone,&item.Adress,&item.Mail)
 		if err != nil {
 			log.Println(err)
 			return res
@@ -57,23 +57,30 @@ func GetPerson(id string) []models.Person {
 
 func CreatePerson(item models.Person) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryPerson["insert"].Q)
-	result, err := DB.ExecContext(
+	tsql := queryPerson["insert"].Q + "select isNull(SCOPE_IDENTITY(),-1);"
+	fmt.Println(tsql)
+	stmt, err := DB.Prepare(tsql)
+	if err != nil {
+		return -1, err
+	}
+	defer stmt.Close()
+	row := stmt.QueryRowContext(
 		ctx,
-		tsql,
 		sql.Named("Name", item.Name),
 		sql.Named("LastName", item.LastName),
 		sql.Named("Dni", item.Dni),
 		sql.Named("Phone", item.Phone),
-		sql.Named("Address", item.Address),
+		sql.Named("Adress", item.Adress),
 		sql.Named("Mail", item.Mail))
 
+	var newID int64
+	err = row.Scan(&newID)
 	if err != nil {
 		return -1, err
 	}
-	return result.RowsAffected()
-}
+	return newID, nil
 
+}
 func UpdatePerson(item models.Person) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(queryPerson["update"].Q)
@@ -85,7 +92,7 @@ func UpdatePerson(item models.Person) (int64, error) {
 		sql.Named("LastName", item.LastName),
 		sql.Named("Dni", item.Dni),
 		sql.Named("Phone", item.Phone),
-		sql.Named("Address", item.Address),
+		sql.Named("Adress", item.Adress),
 		sql.Named("Mail", item.Mail))
 	if err != nil {
 		return -1, err

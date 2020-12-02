@@ -30,9 +30,27 @@ func GetSystemUsers (w http.ResponseWriter, r *http.Request)  {
 func CreateSystemUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var item models.SystemUser
-	_ = json.NewDecoder(r.Body).Decode(&item)
-	result, err := db.CreateSystemUser(item)
+	var userPerson models.UserPerson
+	_ = json.NewDecoder(r.Body).Decode(&userPerson)
+	person := models.Person{
+		Name: userPerson.Name,
+		LastName: userPerson.LastName,
+		Adress: userPerson.Adress,
+		Mail: userPerson.Mail,
+		Phone: userPerson.Phone,
+		Dni: userPerson.Dni,
+	}
+	idPerson, err := db.CreatePerson(person)
+	if err != nil {
+		log.Panicln(err)
+	}
+	user := models.SystemUser{
+		Username: userPerson.Username,
+		Password: userPerson.Password,
+		Rol:      userPerson.Rol,
+		IdPerson: idPerson,
+	}
+	result, err := db.CreateSystemUser(user)
 	if err != nil {
 		log.Println(err)
 	}

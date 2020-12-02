@@ -48,7 +48,7 @@ var queryCategory = map[string]*queryConfig{
 
 var person = TableDB{
 	Name: "dbo.Person",
-	Fields: []string{"IdPerson", "Name", "LastName", "Phone", "Adress", "Dni", "mail"},
+	Fields: []string{"IdPerson", "Name", "LastName", "Phone", "Dni", "Adress", "mail"},
 }
 
 var queryPerson = map[string]*queryConfig{

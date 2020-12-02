@@ -56,9 +56,11 @@ func GetCategory(id string) []models.Category {
 	return res
 }
 
+
 func CreateCategory(item models.Category) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(queryCategory["insert"].Q)
+	fmt.Println(tsql)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
