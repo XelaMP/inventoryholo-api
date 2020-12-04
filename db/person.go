@@ -84,6 +84,7 @@ func CreatePerson(item models.Person) (int64, error) {
 func UpdatePerson(item models.Person) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(queryPerson["update"].Q)
+	fmt.Println(tsql)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,

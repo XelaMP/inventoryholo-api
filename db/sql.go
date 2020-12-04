@@ -16,7 +16,7 @@ type TableDB struct {
 
 var user = TableDB{
 	Name:   "dbo.Users",
-	Fields: []string{"idUser", "Username", "password", "rol", "idPerson"},
+	Fields: []string{"IdUser", "Username", "password", "rol", "IdPerson"},
 }
 
 var QuerySystemUser = map[string]*queryConfig{
@@ -28,8 +28,6 @@ var QuerySystemUser = map[string]*queryConfig{
 	"insert": {Q: "insert into "+ user.Name + "("+ fieldStringInsert(user.Fields)+  ") values (" +valuesString(user.Fields) + ");"},
 	"update": {Q: "update " + user.Name + " set " + updatesString(user.Fields) + " where " + user.Fields[0] + " = @ID;"},
 	"delete": {Q: "delete from " + user.Name + " where " + user.Fields[0] + " = @ID"},
-
-
 }
 
 var category = TableDB{
@@ -57,5 +55,19 @@ var queryPerson = map[string]*queryConfig{
 	"insert": {Q: "insert into " + person.Name + "("+ fieldStringInsert(person.Fields) + ") values (" + valuesString(person.Fields) + ");"},
 	"update": {Q: "update " + person.Name + " set " + updatesString(person.Fields) + " where " + person.Fields[0] + " = @ID;"},
 	"delete": {Q: "delete from " + person.Name + " where " + person.Fields[0] + " = @ID"},
+
+}
+
+var product = TableDB{
+	Name: "dbo.Product",
+	Fields: []string{"IdProduct","description","Price","Stock","IdCategory"},
+}
+
+var QueryProduct = map[string]*queryConfig{
+	"get": {Q: "select " + fieldString(product.Fields) + " from " + product.Name + " where " + product.Fields[0] + " =%s;"},
+	"list": {Q: "select " + fieldString(product.Fields) + " from " +product.Name + ";"},
+	"insert": {Q: "insert into " + product.Name + "("+ fieldStringInsert(product.Fields) + ") values (" + valuesString(product.Fields) + ");"},
+	"update": {Q: "update " + product.Name + " set " + updatesString(product.Fields) + " where " + product.Fields[0] + " = @ID;"},
+	"delete": {Q: "delete from " + product.Name + " where " + product.Fields[0] + " = @ID"},
 
 }

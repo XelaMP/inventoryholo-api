@@ -20,7 +20,7 @@ type UserLogin struct {
 
 type UserPerson struct {
 	ID       int    `json:"_id"`
-	PersonID int    `json:"personId"`
+	PersonID int64  `json:"personId"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 	Rol      string `json:"rol"`

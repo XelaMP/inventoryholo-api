@@ -57,6 +57,7 @@ func GetSystemUser(id string) []models.SystemUser {
 	defer rows.Close()
 	return res
 }
+
 func CreateSystemUser(item models.SystemUser) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(QuerySystemUser["insert"].Q)
@@ -64,8 +65,8 @@ func CreateSystemUser(item models.SystemUser) (int64, error) {
 		ctx,
 		tsql,
 		sql.Named("Username", item.Username),
-		sql.Named("Password", item.Password),
-		sql.Named("Rol",item.Rol),
+		sql.Named("password", item.Password),
+		sql.Named("rol",item.Rol),
 		sql.Named("IdPerson",item.IdPerson))
 	if err != nil {
 		return -1, err
@@ -76,16 +77,19 @@ func CreateSystemUser(item models.SystemUser) (int64, error) {
 func UpdateSystemUser(item models.SystemUser) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(QuerySystemUser["update"].Q)
+	fmt.Println(tsql)
+	fmt.Println(item)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
 		sql.Named("ID", item.ID),
 		sql.Named("Username", item.Username),
-		sql.Named("Password",item.Password),
-		sql.Named("Rol",item.Rol),
+		sql.Named("password",item.Password),
+		sql.Named("rol",item.Rol),
 		sql.Named("IdPerson",item.IdPerson))
 
 	if err != nil {
+		log.Println(err)
 		return -1, err
 	}
 	return result.RowsAffected()
