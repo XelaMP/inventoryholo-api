@@ -17,7 +17,7 @@ func GetSystemUser(w http.ResponseWriter, r *http.Request) {
 
 	items := db.GetSystemUser(id)
 	var userPerson models.UserPerson
-	if len(items) < 0 {
+	if len(items) > 0 {
 		person := db.GetPerson(strconv.Itoa(int(items[0].IdPerson)))
 		userPerson = models.UserPerson{
 			ID:       items[0].ID,
@@ -38,8 +38,25 @@ func GetSystemUser(w http.ResponseWriter, r *http.Request) {
 
 func GetSystemUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	items := db.GetSystemUsers()
-	_ = json.NewEncoder(w).Encode(items)
+	var params = mux.Vars(r)
+	id, _ := params["id"]
+	var itemperson models.UserPerson
+
+	//_ = json.NewDecoder(r.Body).Decode(&itemperson)
+	itemperson.ID, _ = strconv.Atoi(id)
+
+	users := db.GetSystemUsers()
+
+	if len(users) > 0 {
+		itemperson = models.UserPerson{
+			ID: itemperson.ID,
+			Username: itemperson.Username,
+			Rol: itemperson.Rol,
+			Password: itemperson.Password,
+		}
+	}
+	_ = json.NewEncoder(w).Encode(users)
+	// imita la logica de obtener un user
 
 }
 

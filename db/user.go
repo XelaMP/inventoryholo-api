@@ -22,7 +22,7 @@ func GetSystemUsers() [] models.SystemUser {
 		return res
 	}
 	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Username, &item.Rol, &item.Password)
+		err := rows.Scan(&item.ID, &item.Username, &item.Rol, &item.Password,&item.IdPerson)
 		if err != nil {
 			log.Println(err)
 			return res

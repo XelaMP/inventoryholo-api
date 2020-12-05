@@ -10,28 +10,28 @@ import (
 	"strconv"
 )
 
-func GetProducts(w http.ResponseWriter, r *http.Request) {
+func GetInputs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	items := db.GetProducts()
+	items := db.GetInputs()
 	_ = json.NewEncoder(w).Encode(items)
 }
 
-func GetProduct(w http.ResponseWriter, r *http.Request) {
+func GetInput(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 
-	items := db.GetProduct(id)
+	items := db.GetInput(id)
 
 	_ = json.NewEncoder(w).Encode(items[0])
 }
 
-func CreateProduct(w http.ResponseWriter, r *http.Request) {
+func CreateInput(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var item models.Product
+	var item models.Input
 	_ = json.NewDecoder(r.Body).Decode(&item)
-	result, err := db.CreateProduct(item)
+	result, err := db.CreateInput(item)
 	if err != nil {
 		log.Println(err)
 	}
@@ -39,14 +39,14 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-func UpdateProduct(w http.ResponseWriter, r *http.Request) {
+func UpdateInput(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
-	var item models.Product
+	var item models.Input
 	_ = json.NewDecoder(r.Body).Decode(&item)
 	item.ID, _ = strconv.Atoi(id)
-	result, err := db.UpdateProduct(item)
+	result, err := db.UpdateInput(item)
 	if err != nil {
 		log.Println(err)
 	}
@@ -54,15 +54,16 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-func DeleteProduct(w http.ResponseWriter, r *http.Request) {
+func DeleteInput(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
-	result, err := db.DeleteProduct(id)
+	result, err := db.DeleteInput(id)
 	if err != nil {
 		log.Println(err)
 	}
 
 	_ = json.NewEncoder(w).Encode(result)
 }
+
 

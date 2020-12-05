@@ -20,20 +20,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="73bab35a-a2bb-4611-957b-8baacad96f02" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/controllers/product.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/db/product.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/router/product.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/controllers/input.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/db/input.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/router/input.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/person.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/product.go" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/product.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/controllers/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/person.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/person.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/sql.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/user.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/models/product.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/product.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/users.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/router/person.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/router/product.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/product.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/router/routes.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/routes.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/router/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/user.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

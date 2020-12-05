@@ -60,7 +60,7 @@ var queryPerson = map[string]*queryConfig{
 
 var product = TableDB{
 	Name: "dbo.Product",
-	Fields: []string{"IdProduct","description","Price","Stock","IdCategory"},
+	Fields: []string{"IdProduct", "Name" ,"description","Price","Stock","IdCategory"},
 }
 
 var QueryProduct = map[string]*queryConfig{
@@ -70,4 +70,17 @@ var QueryProduct = map[string]*queryConfig{
 	"update": {Q: "update " + product.Name + " set " + updatesString(product.Fields) + " where " + product.Fields[0] + " = @ID;"},
 	"delete": {Q: "delete from " + product.Name + " where " + product.Fields[0] + " = @ID"},
 
+}
+
+var input =  TableDB{
+	Name: "dbo.Input",
+	Fields: []string{"IdInput", "Date", "Quantity", "IdProduct"},
+}
+
+var QueryInput = map[string]*queryConfig{
+	"get": {Q: "select " + fieldString(input.Fields) + " from " + input.Name + " where " + input.Fields[0] + " =%s;"},
+	"list": {Q: "select " + fieldString(input.Fields) + " from "+ input.Name + ";"},
+	"insert": {Q: "insert into " + input.Name + "("+ fieldStringInsert(input.Fields) + ") values (" + valuesString(input.Fields) + ");"},
+	"update": {Q: "update " + input.Name + " set " + updatesString(input.Fields) + " where " + input.Fields[0] + " = @ID;"},
+	"delete": {Q: "delete from " + input.Name + " where " + input.Fields[0] + " = @ID"},
 }

@@ -7,5 +7,10 @@ func Routes(r *mux.Router) {
 	userRoutes(u)
 	c := r.PathPrefix("/category").Subrouter()
 	categoryRoutes(c)
+	pr := r.PathPrefix("/product").Subrouter()
+	productRoutes(pr)
+	i := r.PathPrefix("/input").Subrouter()
+	inputRoutes(i)
+
 
 }
