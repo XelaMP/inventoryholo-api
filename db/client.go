@@ -8,11 +8,11 @@ import (
 	"log"
 )
 
-func GetInputs() [] models.Input {
-	res := make([]models.Input, 0)
-	var item models.Input
+func GetClients() []models.Client {
+	res := make([]models.Client, 0)
+	var item models.Client
 
-	tsql := fmt.Sprintf(QueryInput["list"].Q)
+	tsql := fmt.Sprintf(queryClient["list"].Q)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
@@ -20,7 +20,7 @@ func GetInputs() [] models.Input {
 		return res
 	}
 	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Date, &item.Quantity)
+		err := rows.Scan(&item.ID, &item.IdPerson, &item.Type)
 		if err != nil {
 			log.Println(err)
 			return res
@@ -32,11 +32,12 @@ func GetInputs() [] models.Input {
 	return res
 }
 
-func GetInput(id string) []models.Input {
-	res := make([]models.Input, 0)
-	var item models.Input
 
-	tsql := fmt.Sprintf(QueryInput["get"].Q, id)
+func GetClient(id string) []models.Client {
+	res := make([]models.Client, 0)
+	var item models.Client
+
+	tsql := fmt.Sprintf(queryClient["get"].Q, id)
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
@@ -44,7 +45,7 @@ func GetInput(id string) []models.Input {
 		return res
 	}
 	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Date, &item.Quantity, &item.IdProduct)
+		err := rows.Scan(&item.ID, &item.IdPerson, &item.Type)
 		if err != nil {
 			log.Println(err)
 			return res
@@ -56,40 +57,40 @@ func GetInput(id string) []models.Input {
 	return res
 }
 
-func CreateInput(item models.Input) (int64, error) {
+
+func CreateClient(item models.Client) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(QueryInput["insert"].Q)
+	tsql := fmt.Sprintf(queryClient["insert"].Q)
+	fmt.Println(tsql)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
-		sql.Named("Date", item.Date),
-		sql.Named("Quantity", item.Quantity),
-		sql.Named("IdProduct",item.IdProduct))
+		sql.Named("IdPerson", item.IdPerson),
+		sql.Named("Type", item.Type))
 	if err != nil {
 		return -1, err
 	}
 	return result.RowsAffected()
 }
-func UpdateInput(item models.Input) (int64, error) {
+
+func UpdateClient(item models.Client) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(QueryInput["update"].Q)
+	tsql := fmt.Sprintf(queryClient["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
 		sql.Named("ID", item.ID),
-		sql.Named("Date", item.Date),
-		sql.Named("Quantity",item.Quantity),
-		sql.Named("IdProduct", item.IdProduct))
-
-
+		sql.Named("IdPerson", item.IdPerson),
+		sql.Named("Type", item.Type))
 	if err != nil {
 		return -1, err
 	}
 	return result.RowsAffected()
 }
-func DeleteInput(id string) (int64, error) {
+
+func DeleteClient(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(QueryInput["delete"].Q)
+	tsql := fmt.Sprintf(queryClient["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -99,4 +100,3 @@ func DeleteInput(id string) (int64, error) {
 	}
 	return result.RowsAffected()
 }
-

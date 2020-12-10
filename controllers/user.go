@@ -27,8 +27,9 @@ func GetSystemUser(w http.ResponseWriter, r *http.Request) {
 			Rol:      items[0].Rol,
 			Name:     person[0].Name,
 			LastName: person[0].LastName,
+			Cel:      person[0].Cel,
 			Phone:    person[0].Phone,
-			Adress:   person[0].Adress,
+			Address:   person[0].Address,
 			Dni:      person[0].Dni,
 			Mail:     person[0].Mail,
 		}
@@ -68,7 +69,8 @@ func CreateSystemUser(w http.ResponseWriter, r *http.Request) {
 	person := models.Person{
 		Name:     userPerson.Name,
 		LastName: userPerson.LastName,
-		Adress:   userPerson.Adress,
+		Cel:      userPerson.Cel,
+		Address:   userPerson.Address,
 		Mail:     userPerson.Mail,
 		Phone:    userPerson.Phone,
 		Dni:      userPerson.Dni,
@@ -105,8 +107,9 @@ func UpdateSystemUser(w http.ResponseWriter, r *http.Request) {
 		ID:       int(item.PersonID),
 		Name:     item.Name,
 		LastName: item.LastName,
+		Cel:      item.Cel,
 		Phone:    item.Phone,
-		Adress:   item.Adress,
+		Address:   item.Address,
 		Dni:      item.Dni,
 		Mail:     item.Mail,
 	}

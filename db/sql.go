@@ -16,7 +16,7 @@ type TableDB struct {
 
 var user = TableDB{
 	Name:   "dbo.Users",
-	Fields: []string{"IdUser", "Username", "password", "rol", "IdPerson"},
+	Fields: []string{"IdUser", "Username", "Password", "Rol", "IdPerson"},
 }
 
 var QuerySystemUser = map[string]*queryConfig{
@@ -43,10 +43,24 @@ var queryCategory = map[string]*queryConfig{
 	"delete": {Q: "delete from " + category.Name + " where " + category.Fields[0] + " = @ID"},
 }
 
+var client = TableDB{
+	Name:   "dbo.Client",
+	Fields: []string{"IdClient", "IdPerson", "Type"},
+}
+
+var queryClient = map[string]*queryConfig{
+	"get":    {Q: "select " + fieldString(client.Fields) + " from " + client.Name + " where " + client.Fields[0] + " = %s;"},
+	"list":   {Q: "select " + fieldString(client.Fields) + " from " + client.Name + ";"},
+	"insert": {Q: "insert into " + client.Name + " (" + fieldStringInsert(client.Fields) + ") values (" + valuesString(client.Fields) + ");"},
+	"update": {Q: "update " + client.Name + " set " + updatesString(client.Fields) + " where " + client.Fields[0] + " = @ID;"},
+	"delete": {Q: "delete from " + client.Name + " where " + client.Fields[0] + " = @ID"},
+}
+
+
 
 var person = TableDB{
 	Name: "dbo.Person",
-	Fields: []string{"IdPerson", "Name", "LastName", "Phone", "Dni", "Adress", "mail"},
+	Fields: []string{"IdPerson", "Name", "LastName", "Cel" ,"Phone", "Dni", "Address", "Mail"},
 }
 
 var queryPerson = map[string]*queryConfig{
@@ -72,15 +86,31 @@ var QueryProduct = map[string]*queryConfig{
 
 }
 
-var input =  TableDB{
-	Name: "dbo.Input",
-	Fields: []string{"IdInput", "Date", "Quantity", "IdProduct"},
+var movement = TableDB{
+	Name:   "dbo.Movement",
+	Fields: []string{"IdMovement", "IdProduct", "IdWareHouse", "IdUser", "IdClient", "Date", "Quantity","Type"},
 }
 
-var QueryInput = map[string]*queryConfig{
-	"get": {Q: "select " + fieldString(input.Fields) + " from " + input.Name + " where " + input.Fields[0] + " =%s;"},
-	"list": {Q: "select " + fieldString(input.Fields) + " from "+ input.Name + ";"},
-	"insert": {Q: "insert into " + input.Name + "("+ fieldStringInsert(input.Fields) + ") values (" + valuesString(input.Fields) + ");"},
-	"update": {Q: "update " + input.Name + " set " + updatesString(input.Fields) + " where " + input.Fields[0] + " = @ID;"},
-	"delete": {Q: "delete from " + input.Name + " where " + input.Fields[0] + " = @ID"},
+var queryMovement = map[string]*queryConfig{
+	"get":    {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " + movement.Fields[0] + " =%s;"},
+	"list":   {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + ";"},
+	"listWarehouseId":   {Q: "select " + fieldString(movement.Fields) + " from " + movement.Name + " where " +
+		movement.Fields[2] + " = %s;"},
+	"insert": {Q: "insert into " + movement.Name + "(" + fieldStringInsert(movement.Fields) + ") values (" + valuesString(movement.Fields) + ");"},
+	"update": {Q: "update " + movement.Name + " set " + updatesString(movement.Fields) + " where " + movement.Fields[0] + " = @ID;"},
+	"delete": {Q: "delete from " + movement.Name + " where " + movement.Fields[0] + " = @ID"},
 }
+
+var warehouse = TableDB{
+	Name:   "dbo.Warehouse",
+	Fields: []string{"IdWarehouse", "Name", "Address", "State"},
+}
+
+var queryWarehouse = map[string]*queryConfig{
+	"get":    {Q: "select " + fieldString(warehouse.Fields) + " from " + warehouse.Name + " where " + warehouse.Fields[0] + " =%s;"},
+	"list":   {Q: "select " + fieldString(warehouse.Fields) + " from " + warehouse.Name + ";"},
+	"insert": {Q: "insert into " + warehouse.Name + "(" + fieldStringInsert(warehouse.Fields) + ") values (" + valuesString(warehouse.Fields) + ");"},
+	"update": {Q: "update " + warehouse.Name + " set " + updatesString(warehouse.Fields) + " where " + warehouse.Fields[0] + " = @ID;"},
+	"delete": {Q: "delete from " + warehouse.Name + " where " + warehouse.Fields[0] + " = @ID"},
+}
+

@@ -20,7 +20,7 @@ func GetPersons() []models.Person {
 		return res
 	}
 	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name,&item.LastName,&item.Dni,&item.Phone,&item.Adress,&item.Mail)
+		err := rows.Scan(&item.ID, &item.Name,&item.LastName,&item.Cel,&item.Dni,&item.Phone,&item.Address,&item.Mail)
 		if err != nil {
 			log.Println(err)
 			return res
@@ -43,7 +43,7 @@ func GetPerson(id string) []models.Person {
 		return res
 	}
 	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name,&item.LastName,&item.Dni,&item.Phone,&item.Adress,&item.Mail)
+		err := rows.Scan(&item.ID, &item.Name,&item.LastName,&item.Cel,&item.Dni,&item.Phone,&item.Address,&item.Mail)
 		if err != nil {
 			log.Println(err)
 			return res
@@ -68,9 +68,10 @@ func CreatePerson(item models.Person) (int64, error) {
 		ctx,
 		sql.Named("Name", item.Name),
 		sql.Named("LastName", item.LastName),
+		sql.Named("Cel", item.Cel),
 		sql.Named("Dni", item.Dni),
 		sql.Named("Phone", item.Phone),
-		sql.Named("Adress", item.Adress),
+		sql.Named("Address", item.Address),
 		sql.Named("Mail", item.Mail))
 
 	var newID int64
@@ -91,9 +92,10 @@ func UpdatePerson(item models.Person) (int64, error) {
 		sql.Named("ID", item.ID),
 		sql.Named("Name", item.Name),
 		sql.Named("LastName", item.LastName),
+		sql.Named("Cel", item.Cel),
 		sql.Named("Dni", item.Dni),
 		sql.Named("Phone", item.Phone),
-		sql.Named("Adress", item.Adress),
+		sql.Named("Address", item.Address),
 		sql.Named("Mail", item.Mail))
 	if err != nil {
 		return -1, err
