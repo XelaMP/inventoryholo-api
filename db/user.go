@@ -115,6 +115,7 @@ func GetSystemUserFromUserName(userName string) []models.SystemUser {
 	var item models.SystemUser
 
 	tsql := fmt.Sprintf(QuerySystemUser["getUserName"].Q, userName)
+
 	rows, err := DB.Query(tsql)
 
 	if err != nil {

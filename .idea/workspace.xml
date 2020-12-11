@@ -20,36 +20,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="73bab35a-a2bb-4611-957b-8baacad96f02" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/controllers/client.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/controllers/movement.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/controllers/utils.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/controllers/warehouse.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/db/client.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/db/movement.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/db/warehouse.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/movement.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/objectperson.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/warehouse.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/router/client.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/router/movement.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/router/warehouse.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/configuration.json" beforeDir="false" afterPath="$PROJECT_DIR$/configuration.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/input.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/product.go" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/product.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controllers/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/user.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/input.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/person.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/person.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/sql.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/client.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/input.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/output.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/person.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/person.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/product.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/product.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/users.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/router/input.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/router/product.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/product.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/router/routes.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/routes.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/middleware/authentication.go" beforeDir="false" afterPath="$PROJECT_DIR$/middleware/authentication.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -85,7 +59,7 @@
     <property name="go.import.settings.migrated" value="true" />
     <property name="go.sdk.automatically.set" value="true" />
     <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../SISTEMA_HOLOSALUD/API/api-results" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="settings.editor.selected.configurable" value="go.vgo" />
   </component>
