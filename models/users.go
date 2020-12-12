@@ -14,8 +14,8 @@ type UserResult struct {
 }
 
 type UserLogin struct {
-	User     string
-	Password string
+	User     string `json:"username"`
+	Password string `json:"password"`
 }
 
 

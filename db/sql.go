@@ -20,7 +20,7 @@ var user = TableDB{
 }
 
 var QuerySystemUser = map[string]*queryConfig{
-	"getUserName": {Q: "select " + fieldString(user.Fields) + " from " + user.Name + " where " + user.Fields[2] + " = '%s';"},
+	"getUserName": {Q: "select " + fieldString(user.Fields) + " from " + user.Name + " where " + user.Fields[1] + " = '%s';"},
 	"get": {Q: "select " + fieldString(user.Fields) + " from " + user.Name + " where " + user.Fields[0] + " = '%s';"},
 	"updatePassword": {Q: "update " + user.Name + " set v_Password = @Password where " + user.Fields[0] + " = '%s';"},
 	"list": {Q: "select " + fieldString(user.Fields) + " from " + user.Name + ";"},

@@ -8,6 +8,7 @@ import (
 	"github.com/XelaMP/inventoryholo-api/models"
 	"golang.org/x/crypto/bcrypt"
 	"log"
+	"strconv"
 )
 
 func GetSystemUsers() [] models.SystemUser {
@@ -129,7 +130,6 @@ func GetSystemUserFromUserName(userName string) []models.SystemUser {
 			return res
 		} else{
 			res = append(res, item)
-			log.Println(item.Password)
 		}
 	}
 	defer rows.Close()
@@ -140,7 +140,7 @@ func ValidateSystemUserLogin(user string, password string) (constants.State, str
 	items := GetSystemUserFromUserName(user)
 	if len(items) > 0 {
 		if comparePassword(items[0].Password, password) {
-			return constants.Accept, string(rune(items[0].ID))
+			return constants.Accept, strconv.Itoa(items[0].ID)
 		}
 		return constants.InvalidCredentials, ""
 	}
@@ -148,11 +148,12 @@ func ValidateSystemUserLogin(user string, password string) (constants.State, str
 }
 
 func comparePassword(hashedPassword string, password string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	/*err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	if err != nil {
 		return false
 	}
-	return true
+	return true*/
+	return hashedPassword == password
 }
 
 func encrypt(password string) string {

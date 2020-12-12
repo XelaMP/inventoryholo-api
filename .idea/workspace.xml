@@ -24,6 +24,7 @@
       <change beforePath="$PROJECT_DIR$/db/sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/sql.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/user.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/middleware/authentication.go" beforeDir="false" afterPath="$PROJECT_DIR$/middleware/authentication.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/users.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

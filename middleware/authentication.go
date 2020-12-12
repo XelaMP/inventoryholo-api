@@ -108,12 +108,13 @@ func Login(w http.ResponseWriter, r *http.Request){
 		_, _ = fmt.Fprintf(w, "Error al leer el usuario %s\n", err)
 		return
 	}
+	fmt.Println(user)
 
 	stateLogin, id := db.ValidateSystemUserLogin(user.User, user.Password)
 
 	switch stateLogin {
 	case constants.Accept:
-		systemUser :=db.GetSystemUser(id)
+		systemUser := db.GetSystemUser(id)
 		userResult := models.UserResult{ID: id, Role: systemUser[0].Rol}
 		token := GenerateJWT(userResult)
 		result := models.ResponseToken{Token: token}
