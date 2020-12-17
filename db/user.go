@@ -71,16 +71,17 @@ func GetSystemUser(id string) []models.SystemUser {
 
 func CreateSystemUser(item models.SystemUser, noWare bool) (int64, error) {
 	ctx := context.Background()
-
 	tsql := fmt.Sprintf(QuerySystemUser["insert"].Q)
-	if noWare {
+	if !noWare {
 		tsql = fmt.Sprintf(QuerySystemUser["insertNoWare"].Q)
 	}
+	fmt.Println(tsql)
+	fmt.Println(item)
 	item.Password = encrypt(item.Password)
 
 	var err error
 	var result sql.Result
-	if !noWare {
+	if noWare {
 		result, err = DB.ExecContext(
 			ctx,
 			tsql,

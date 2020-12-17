@@ -97,12 +97,13 @@ func CreateSystemUser(w http.ResponseWriter, r *http.Request) {
 		user.IdWarehouse = userPerson.IdWarehouse
 		noWare = true
 	}
-
+	fmt.Println(userPerson)
+	fmt.Println(user)
 	result, err := db.CreateSystemUser(user, noWare)
 	checkError(err, "Created", "User")
-	fmt.Println(result,user,noWare)
 	_ = json.NewEncoder(w).Encode(result)
 }
+
 func UpdateSystemUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
