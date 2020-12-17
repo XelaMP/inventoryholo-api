@@ -60,7 +60,7 @@ func GetWarehouse(id string) []models.Warehouse {
 func CreateWarehouse(item models.Warehouse) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(queryWarehouse["insert"].Q)
-	fmt.Println(tsql)
+
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,

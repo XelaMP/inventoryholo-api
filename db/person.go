@@ -43,7 +43,7 @@ func GetPerson(id string) []models.Person {
 		return res
 	}
 	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name,&item.LastName,&item.Cel,&item.Dni,&item.Phone,&item.Address,&item.Mail)
+		err := rows.Scan(&item.ID, &item.Name, &item.LastName, &item.Cel, &item.Phone, &item.Dni, &item.Address, &item.Mail)
 		if err != nil {
 			log.Println(err)
 			return res
@@ -89,7 +89,7 @@ func UpdatePerson(item models.Person) (int64, error) {
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
-		sql.Named("ID", item.ID),
+		sql.Named("IdPerson", item.ID),
 		sql.Named("Name", item.Name),
 		sql.Named("LastName", item.LastName),
 		sql.Named("Cel", item.Cel),

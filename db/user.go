@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-func GetSystemUsers() [] models.SystemUser {
+func GetSystemUsers() []models.SystemUser {
 	res := make([]models.SystemUser, 0)
 	var item models.SystemUser
 
@@ -22,12 +22,17 @@ func GetSystemUsers() [] models.SystemUser {
 		fmt.Println("Error reading rows: " + err.Error())
 		return res
 	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Username, &item.Rol, &item.Password,&item.IdPerson)
+	for rows.Next() {
+		var idWarehouse sql.NullString
+		err := rows.Scan(&item.ID, &item.Username, &item.Password, &item.Rol, &item.IdPerson, &idWarehouse)
+		item.IdWarehouse = -1
+		if idWarehouse.Valid {
+			item.IdWarehouse, _ = strconv.Atoi(idWarehouse.String)
+		}
 		if err != nil {
 			log.Println(err)
 			return res
-		} else{
+		} else {
 			res = append(res, item)
 		}
 	}
@@ -43,15 +48,20 @@ func GetSystemUser(id string) []models.SystemUser {
 	rows, err := DB.Query(tsql)
 
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
+		fmt.Println("Error reading rows 1: " + err.Error())
 		return res
 	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Username, &item.Password, &item.Rol, &item.IdPerson)
+	for rows.Next() {
+		var idWarehouse sql.NullString
+		err := rows.Scan(&item.ID, &item.Username, &item.Password, &item.Rol, &item.IdPerson, &idWarehouse)
+		item.IdWarehouse = -1
+		if idWarehouse.Valid {
+			item.IdWarehouse, _ = strconv.Atoi(idWarehouse.String)
+		}
 		if err != nil {
 			log.Println(err)
 			return res
-		} else{
+		} else {
 			res = append(res, item)
 		}
 	}
@@ -59,35 +69,79 @@ func GetSystemUser(id string) []models.SystemUser {
 	return res
 }
 
-func CreateSystemUser(item models.SystemUser) (int64, error) {
+func CreateSystemUser(item models.SystemUser, noWare bool) (int64, error) {
 	ctx := context.Background()
+
 	tsql := fmt.Sprintf(QuerySystemUser["insert"].Q)
-	result, err := DB.ExecContext(
-		ctx,
-		tsql,
-		sql.Named("Username", item.Username),
-		sql.Named("password", item.Password),
-		sql.Named("rol",item.Rol),
-		sql.Named("IdPerson",item.IdPerson))
+	if noWare {
+		tsql = fmt.Sprintf(QuerySystemUser["insertNoWare"].Q)
+	}
+	item.Password = encrypt(item.Password)
+
+	var err error
+	var result sql.Result
+	if !noWare {
+		result, err = DB.ExecContext(
+			ctx,
+			tsql,
+			sql.Named("UserName", item.Username),
+			sql.Named("Password", item.Password),
+			sql.Named("Rol", item.Rol),
+			sql.Named("IdPerson", item.IdPerson),
+			sql.Named("IdWarehouse", item.IdWarehouse))
+	} else {
+		result, err = DB.ExecContext(
+			ctx,
+			tsql,
+			sql.Named("UserName", item.Username),
+			sql.Named("Password", item.Password),
+			sql.Named("Rol", item.Rol),
+			sql.Named("IdPerson", item.IdPerson))
+	}
+
+
 	if err != nil {
 		return -1, err
 	}
 	return result.RowsAffected()
 }
 
-func UpdateSystemUser(item models.SystemUser) (int64, error) {
+func UpdateSystemUser(item models.SystemUser, noWare bool) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(QuerySystemUser["update"].Q)
-	fmt.Println(tsql)
-	fmt.Println(item)
-	result, err := DB.ExecContext(
-		ctx,
-		tsql,
-		sql.Named("ID", item.ID),
-		sql.Named("Username", item.Username),
-		sql.Named("password",item.Password),
-		sql.Named("rol",item.Rol),
-		sql.Named("IdPerson",item.IdPerson))
+
+	if noWare {
+		tsql = fmt.Sprintf(QuerySystemUser["updateNoWare"].Q)
+	}
+
+	user := GetSystemUser(strconv.Itoa(item.ID))[0]
+	if user.Password != item.Password {
+		item.Password = encrypt(item.Password)
+	}
+	var err error
+	var result sql.Result
+
+	if !noWare {
+		result, err = DB.ExecContext(
+			ctx,
+			tsql,
+			sql.Named("ID", item.ID),
+			sql.Named("UserName", item.Username),
+			sql.Named("Password", item.Password),
+			sql.Named("Rol", item.Rol),
+			sql.Named("IdPerson", item.IdPerson),
+			sql.Named("IdWarehouse", item.IdWarehouse))
+	} else {
+		result, err = DB.ExecContext(
+			ctx,
+			tsql,
+			sql.Named("ID", item.ID),
+			sql.Named("UserName", item.Username),
+			sql.Named("Password", item.Password),
+			sql.Named("Rol", item.Rol),
+			sql.Named("IdPerson", item.IdPerson))
+	}
+
 
 	if err != nil {
 		log.Println(err)
@@ -108,9 +162,6 @@ func DeleteSystemUser(id string) (int64, error) {
 	return result.RowsAffected()
 }
 
-
-
-
 func GetSystemUserFromUserName(userName string) []models.SystemUser {
 	res := make([]models.SystemUser, 0)
 	var item models.SystemUser
@@ -123,12 +174,17 @@ func GetSystemUserFromUserName(userName string) []models.SystemUser {
 		fmt.Println("Error reading rows: " + err.Error())
 		return res
 	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Username, &item.Password, &item.Rol, &item.IdPerson)
+	for rows.Next() {
+		var idWarehouse sql.NullString
+		err := rows.Scan(&item.ID, &item.Username, &item.Password, &item.Rol, &item.IdPerson, &idWarehouse)
+		item.IdWarehouse = -1
+		if idWarehouse.Valid {
+			item.IdWarehouse, _ = strconv.Atoi(idWarehouse.String)
+		}
 		if err != nil {
 			log.Println(err)
 			return res
-		} else{
+		} else {
 			res = append(res, item)
 		}
 	}
@@ -136,7 +192,7 @@ func GetSystemUserFromUserName(userName string) []models.SystemUser {
 	return res
 }
 
-func ValidateSystemUserLogin(user string, password string) (constants.State, string){
+func ValidateSystemUserLogin(user string, password string) (constants.State, string) {
 	items := GetSystemUserFromUserName(user)
 	if len(items) > 0 {
 		if comparePassword(items[0].Password, password) {
@@ -148,12 +204,11 @@ func ValidateSystemUserLogin(user string, password string) (constants.State, str
 }
 
 func comparePassword(hashedPassword string, password string) bool {
-	/*err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	if err != nil {
 		return false
 	}
-	return true*/
-	return hashedPassword == password
+	return true
 }
 
 func encrypt(password string) string {

@@ -14,7 +14,7 @@ import (
 	"os"
 )
 
-func main ()  {
+func main() {
 	r := mux.NewRouter()
 
 	db.DB = helper.Get()
@@ -26,7 +26,7 @@ func main ()  {
 	routes.Routes(s)
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{
+		AllowedOrigins: []string{
 			"http://localhost:4200",
 			"http://192.241.159.224",
 			"http://resultados.holosalud.org",
@@ -53,4 +53,3 @@ func main ()  {
 func indexRouter(w http.ResponseWriter, r *http.Request) {
 	_, _ = fmt.Fprintf(w, "Welcome api inventory holo!")
 }
-

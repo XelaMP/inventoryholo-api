@@ -21,8 +21,17 @@
   <component name="ChangeListManager">
     <list default="true" id="73bab35a-a2bb-4611-957b-8baacad96f02" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/configuration.json" beforeDir="false" afterPath="$PROJECT_DIR$/configuration.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controllers/warehouse.go" beforeDir="false" afterPath="$PROJECT_DIR$/controllers/warehouse.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/person.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/person.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/sql.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/sql.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/user.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/warehouse.go" beforeDir="false" afterPath="$PROJECT_DIR$/db/warehouse.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/objectperson.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/objectperson.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/users.go" beforeDir="false" afterPath="$PROJECT_DIR$/models/users.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/router/user.go" beforeDir="false" afterPath="$PROJECT_DIR$/router/user.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
