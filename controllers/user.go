@@ -97,8 +97,7 @@ func CreateSystemUser(w http.ResponseWriter, r *http.Request) {
 		user.IdWarehouse = userPerson.IdWarehouse
 		noWare = true
 	}
-	fmt.Println(userPerson)
-	fmt.Println(user)
+
 	result, err := db.CreateSystemUser(user, noWare)
 	checkError(err, "Created", "User")
 	_ = json.NewEncoder(w).Encode(result)
@@ -127,7 +126,7 @@ func UpdateSystemUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := db.UpdatePerson(person)
-
+fmt.Println(person)
 	user := models.SystemUser{
 		ID:          item.ID,
 		Username:    item.Username,
@@ -141,11 +140,14 @@ func UpdateSystemUser(w http.ResponseWriter, r *http.Request) {
 		noWare = true
 	}
 
+
+
 	result, err = db.UpdateSystemUser(user, noWare)
 	fmt.Print(user)
 	checkError(err, "Updated", "User")
 
 	_ = json.NewEncoder(w).Encode(result)
+
 }
 
 func DeleteSystemUser(w http.ResponseWriter, r *http.Request) {

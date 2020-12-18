@@ -72,7 +72,7 @@ var queryPerson = map[string]*queryConfig{
 
 var product = TableDB{
 	Name:   "dbo.Product",
-	Fields: []string{"IdProduct", "Name", "description", "Price", "Stock", "IdCategory"},
+	Fields: []string{"IdProduct", "Name", "Description", "Price", "Stock", "IdCategory"},
 }
 
 var QueryProduct = map[string]*queryConfig{

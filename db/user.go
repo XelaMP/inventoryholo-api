@@ -75,8 +75,8 @@ func CreateSystemUser(item models.SystemUser, noWare bool) (int64, error) {
 	if !noWare {
 		tsql = fmt.Sprintf(QuerySystemUser["insertNoWare"].Q)
 	}
-	fmt.Println(tsql)
-	fmt.Println(item)
+	//fmt.Println(tsql)
+	//fmt.Println(item)
 	item.Password = encrypt(item.Password)
 
 	var err error
@@ -85,10 +85,10 @@ func CreateSystemUser(item models.SystemUser, noWare bool) (int64, error) {
 		result, err = DB.ExecContext(
 			ctx,
 			tsql,
-			sql.Named("UserName", item.Username),
-			sql.Named("Password", item.Password),
-			sql.Named("Rol", item.Rol),
-			sql.Named("IdPerson", item.IdPerson),
+			sql.Named("UserName",    item.Username),
+			sql.Named("Password",    item.Password),
+			sql.Named("Rol",		   item.Rol),
+			sql.Named("IdPerson",    item.IdPerson),
 			sql.Named("IdWarehouse", item.IdWarehouse))
 	} else {
 		result, err = DB.ExecContext(
@@ -96,7 +96,7 @@ func CreateSystemUser(item models.SystemUser, noWare bool) (int64, error) {
 			tsql,
 			sql.Named("UserName", item.Username),
 			sql.Named("Password", item.Password),
-			sql.Named("Rol", item.Rol),
+			sql.Named("Rol",      item.Rol),
 			sql.Named("IdPerson", item.IdPerson))
 	}
 
@@ -111,7 +111,7 @@ func UpdateSystemUser(item models.SystemUser, noWare bool) (int64, error) {
 	ctx := context.Background()
 	tsql := fmt.Sprintf(QuerySystemUser["update"].Q)
 
-	if noWare {
+	if !noWare {
 		tsql = fmt.Sprintf(QuerySystemUser["updateNoWare"].Q)
 	}
 
@@ -122,7 +122,7 @@ func UpdateSystemUser(item models.SystemUser, noWare bool) (int64, error) {
 	var err error
 	var result sql.Result
 
-	if !noWare {
+	if noWare {
 		result, err = DB.ExecContext(
 			ctx,
 			tsql,

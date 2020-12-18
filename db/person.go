@@ -20,7 +20,7 @@ func GetPersons() []models.Person {
 		return res
 	}
 	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name,&item.LastName,&item.Cel,&item.Dni,&item.Phone,&item.Address,&item.Mail)
+		err := rows.Scan(&item.ID, &item.Name, &item.LastName, &item.Cel, &item.Phone, &item.Address, &item.Dni, &item.Mail)
 		if err != nil {
 			log.Println(err)
 			return res
@@ -43,7 +43,7 @@ func GetPerson(id string) []models.Person {
 		return res
 	}
 	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name, &item.LastName, &item.Cel, &item.Phone, &item.Dni, &item.Address, &item.Mail)
+		err := rows.Scan(&item.ID, &item.Name, &item.LastName, &item.Cel, &item.Phone, &item.Address, &item.Dni, &item.Mail)
 		if err != nil {
 			log.Println(err)
 			return res
@@ -66,13 +66,13 @@ func CreatePerson(item models.Person) (int64, error) {
 	defer stmt.Close()
 	row := stmt.QueryRowContext(
 		ctx,
-		sql.Named("Name", item.Name),
+		sql.Named("Name",     item.Name),
 		sql.Named("LastName", item.LastName),
-		sql.Named("Cel", item.Cel),
-		sql.Named("Dni", item.Dni),
-		sql.Named("Phone", item.Phone),
-		sql.Named("Address", item.Address),
-		sql.Named("Mail", item.Mail))
+		sql.Named("Cel",      item.Cel),
+		sql.Named("Phone",    item.Phone),
+		sql.Named("Address",  item.Address),
+		sql.Named("Dni",      item.Dni),
+		sql.Named("Mail",     item.Mail))
 
 	var newID int64
 	err = row.Scan(&newID)
@@ -93,14 +93,16 @@ func UpdatePerson(item models.Person) (int64, error) {
 		sql.Named("Name", item.Name),
 		sql.Named("LastName", item.LastName),
 		sql.Named("Cel", item.Cel),
-		sql.Named("Dni", item.Dni),
 		sql.Named("Phone", item.Phone),
 		sql.Named("Address", item.Address),
+		sql.Named("Dni", item.Dni),
 		sql.Named("Mail", item.Mail))
 	if err != nil {
 		return -1, err
 	}
+
 	return result.RowsAffected()
+
 }
 
 func DeletePerson (id string) (int64, error) {
