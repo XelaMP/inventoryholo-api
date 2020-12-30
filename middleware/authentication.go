@@ -7,6 +7,7 @@ import (
 	"github.com/XelaMP/inventoryholo-api/constants"
 	"github.com/XelaMP/inventoryholo-api/db"
 	"github.com/XelaMP/inventoryholo-api/models"
+	"github.com/XelaMP/inventoryholo-api/query"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"
 	"io/ioutil"
@@ -114,8 +115,8 @@ func Login(w http.ResponseWriter, r *http.Request){
 
 	switch stateLogin {
 	case constants.Accept:
-		systemUser := db.GetSystemUser(id)
-		userResult := models.UserResult{ID: id, Role: systemUser[0].Rol}
+		systemUser, _ := db.UserDB{Ctx: "Auth", Query: query.SystemUser}.Get(id)
+		userResult := models.UserResult{ID: id, Role: systemUser.Rol}
 		token := GenerateJWT(userResult)
 		result := models.ResponseToken{Token: token}
 		jsonResult, err := json.Marshal(result)

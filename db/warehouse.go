@@ -5,61 +5,46 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/XelaMP/inventoryholo-api/models"
-	"log"
+
 )
 
-func GetWarehouses() []models.Warehouse {
-	res := make([]models.Warehouse, 0)
-	var item models.Warehouse
-
-	tsql := fmt.Sprintf(queryWarehouse["list"].Q)
-	rows, err := DB.Query(tsql)
-
-	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name, &item.Address, &item.State)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
-		}
-	}
-	defer rows.Close()
-	return res
+type WarehouseDB struct {
+ 	 Ctx string
+ 	 Query models.QueryDB
 }
 
-func GetWarehouse(id string) []models.Warehouse {
+func (db WarehouseDB) GetAll() ([]models.Warehouse, error) {
 	res := make([]models.Warehouse, 0)
-	var item models.Warehouse
 
-	tsql := fmt.Sprintf(queryWarehouse["get"].Q, id)
+	tsql := fmt.Sprintf(db.Query["list"].Q)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name, &item.Address, &item.State)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
-		}
+		return res, err
 	}
 	defer rows.Close()
-	return res
+	return res, nil
+}
+
+func (db WarehouseDB) Get(id string) (models.Warehouse, error) {
+	res := make([]models.Warehouse, 0)
+
+	tsql := fmt.Sprintf(db.Query["get"].Q, id)
+	rows, err := DB.Query(tsql)
+
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
+	if err != nil {
+		return models.Warehouse{}, err
+	}
+	defer rows.Close()
+	return res[0], nil
 }
 
 
-func CreateWarehouse(item models.Warehouse) (int64, error) {
+func (db WarehouseDB) Create(item models.Warehouse) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryWarehouse["insert"].Q)
+	tsql := fmt.Sprintf(db.Query["insert"].Q)
 
 	result, err := DB.ExecContext(
 		ctx,
@@ -73,9 +58,9 @@ func CreateWarehouse(item models.Warehouse) (int64, error) {
 	return result.RowsAffected()
 }
 
-func UpdateWarehouse(item models.Warehouse) (int64, error) {
+func (db WarehouseDB) Update(id string, item models.Warehouse) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryWarehouse["update"].Q)
+	tsql := fmt.Sprintf(db.Query["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -89,9 +74,9 @@ func UpdateWarehouse(item models.Warehouse) (int64, error) {
 	return result.RowsAffected()
 }
 
-func DeleteWarehouse(id string) (int64, error) {
+func (db WarehouseDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryWarehouse["delete"].Q)
+	tsql := fmt.Sprintf(db.Query["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -101,4 +86,25 @@ func DeleteWarehouse(id string) (int64, error) {
 	}
 	return result.RowsAffected()
 }
+
+func (db WarehouseDB) scan(rows *sql.Rows, err error, res *[]models.Warehouse, ctx string, situation string) error {
+		var item models.Warehouse
+
+	if err != nil {
+		checkError(err, situation, ctx, "Reading rows")
+		return err
+	}
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.Name, &item.Address, &item.State)
+		if err != nil {
+			checkError(err, situation, ctx, "Scan rows")
+			return err
+		} else {
+			*res = append(*res, item)
+		}
+	}
+	return nil
+
+ }
+
 

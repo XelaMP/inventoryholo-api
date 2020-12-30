@@ -6,100 +6,63 @@ import (
 	"fmt"
 	"github.com/XelaMP/inventoryholo-api/constants"
 	"github.com/XelaMP/inventoryholo-api/models"
+	"github.com/XelaMP/inventoryholo-api/query"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"strconv"
 )
 
-func GetSystemUsers() []models.SystemUser {
-	res := make([]models.SystemUser, 0)
-	var item models.SystemUser
-
-	tsql := fmt.Sprintf(QuerySystemUser["list"].Q)
-	rows, err := DB.Query(tsql)
-
-	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next() {
-		var idWarehouse sql.NullString
-		err := rows.Scan(&item.ID, &item.Username, &item.Password, &item.Rol, &item.IdPerson, &idWarehouse)
-		item.IdWarehouse = -1
-		if idWarehouse.Valid {
-			item.IdWarehouse, _ = strconv.Atoi(idWarehouse.String)
-		}
-		if err != nil {
-			log.Println(err)
-			return res
-		} else {
-			res = append(res, item)
-		}
-	}
-	defer rows.Close()
-	return res
+type UserDB struct {
+	Ctx   string
+	Query models.QueryDB
 }
 
-func GetSystemUser(id string) []models.SystemUser {
+func (db UserDB) GetAll() ([]models.SystemUser, error) {
 	res := make([]models.SystemUser, 0)
-	var item models.SystemUser
 
-	tsql := fmt.Sprintf(QuerySystemUser["get"].Q, id)
+	tsql := fmt.Sprintf(db.Query["list"].Q)
 	rows, err := DB.Query(tsql)
-
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
 	if err != nil {
-		fmt.Println("Error reading rows 1: " + err.Error())
-		return res
-	}
-	for rows.Next() {
-		var idWarehouse sql.NullString
-		err := rows.Scan(&item.ID, &item.Username, &item.Password, &item.Rol, &item.IdPerson, &idWarehouse)
-		item.IdWarehouse = -1
-		if idWarehouse.Valid {
-			item.IdWarehouse, _ = strconv.Atoi(idWarehouse.String)
-		}
-		if err != nil {
-			log.Println(err)
-			return res
-		} else {
-			res = append(res, item)
-		}
+		return res, err
 	}
 	defer rows.Close()
-	return res
+	return res, nil
+
 }
 
-func CreateSystemUser(item models.SystemUser, noWare bool) (int64, error) {
+func (db UserDB) Get(id string) (models.SystemUser, error) {
+	res := make([]models.SystemUser, 0)
+
+	tsql := fmt.Sprintf(db.Query["get"].Q, id)
+	rows, err := DB.Query(tsql)
+
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
+	if err != nil {
+		return models.SystemUser{}, err
+	}
+	defer rows.Close()
+	return res[0], nil
+}
+
+func (db UserDB) Create(item models.SystemUser) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(QuerySystemUser["insert"].Q)
-	if !noWare {
-		tsql = fmt.Sprintf(QuerySystemUser["insertNoWare"].Q)
-	}
-	//fmt.Println(tsql)
-	//fmt.Println(item)
+	tsql := fmt.Sprintf(db.Query["insert"].Q)
+
 	item.Password = encrypt(item.Password)
 
-	var err error
-	var result sql.Result
-	if noWare {
-		result, err = DB.ExecContext(
-			ctx,
-			tsql,
-			sql.Named("UserName",    item.Username),
-			sql.Named("Password",    item.Password),
-			sql.Named("Rol",		   item.Rol),
-			sql.Named("IdPerson",    item.IdPerson),
-			sql.Named("IdWarehouse", item.IdWarehouse))
-	} else {
-		result, err = DB.ExecContext(
-			ctx,
-			tsql,
-			sql.Named("UserName", item.Username),
-			sql.Named("Password", item.Password),
-			sql.Named("Rol",      item.Rol),
-			sql.Named("IdPerson", item.IdPerson))
+	nameIdWarehouse := sql.Named("IdWarehouse", nil)
+	if item.IdWarehouse != -1 {
+		nameIdWarehouse = sql.Named("IdWarehouse", item.IdWarehouse)
 	}
-
+	result, err := DB.ExecContext(
+		ctx,
+		tsql,
+		sql.Named("Username", item.Username),
+		sql.Named("Password", item.Password),
+		sql.Named("Rol", item.Rol),
+		sql.Named("IdPerson", item.IdPerson),
+		nameIdWarehouse)
 
 	if err != nil {
 		return -1, err
@@ -107,52 +70,37 @@ func CreateSystemUser(item models.SystemUser, noWare bool) (int64, error) {
 	return result.RowsAffected()
 }
 
-func UpdateSystemUser(item models.SystemUser, noWare bool) (int64, error) {
+func (db UserDB) Update(id string, item models.SystemUser) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(QuerySystemUser["update"].Q)
+	tsql := fmt.Sprintf(db.Query["update"].Q)
 
-	if !noWare {
-		tsql = fmt.Sprintf(QuerySystemUser["updateNoWare"].Q)
-	}
-
-	user := GetSystemUser(strconv.Itoa(item.ID))[0]
+	user, _ := db.Get(strconv.Itoa(item.ID))
 	if user.Password != item.Password {
 		item.Password = encrypt(item.Password)
 	}
-	var err error
-	var result sql.Result
 
-	if noWare {
-		result, err = DB.ExecContext(
-			ctx,
-			tsql,
-			sql.Named("ID", item.ID),
-			sql.Named("UserName", item.Username),
-			sql.Named("Password", item.Password),
-			sql.Named("Rol", item.Rol),
-			sql.Named("IdPerson", item.IdPerson),
-			sql.Named("IdWarehouse", item.IdWarehouse))
-	} else {
-		result, err = DB.ExecContext(
-			ctx,
-			tsql,
-			sql.Named("ID", item.ID),
-			sql.Named("UserName", item.Username),
-			sql.Named("Password", item.Password),
-			sql.Named("Rol", item.Rol),
-			sql.Named("IdPerson", item.IdPerson))
+	nameIdWarehouse := sql.Named("IdWarehouse", nil)
+	if item.IdWarehouse != -1 {
+		nameIdWarehouse = sql.Named("IdWarehouse", item.IdWarehouse)
 	}
-
-
+	result, err := DB.ExecContext(
+		ctx,
+		tsql,
+		sql.Named("ID", id),
+		sql.Named("Username", item.Username),
+		sql.Named("Password", item.Password),
+		sql.Named("Rol", item.Rol),
+		sql.Named("IdPerson", item.IdPerson),
+		nameIdWarehouse)
 	if err != nil {
 		log.Println(err)
 		return -1, err
 	}
 	return result.RowsAffected()
 }
-func DeleteSystemUser(id string) (int64, error) {
+func (db UserDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(QuerySystemUser["delete"].Q)
+	tsql := fmt.Sprintf(db.Query["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -167,7 +115,7 @@ func GetSystemUserFromUserName(userName string) []models.SystemUser {
 	res := make([]models.SystemUser, 0)
 	var item models.SystemUser
 
-	tsql := fmt.Sprintf(QuerySystemUser["getUserName"].Q, userName)
+	tsql := fmt.Sprintf(query.SystemUser["getUserName"].Q, userName)
 
 	rows, err := DB.Query(tsql)
 
@@ -220,4 +168,25 @@ func encrypt(password string) string {
 		return ""
 	}
 	return string(hashedPassword)
+}
+
+func (db UserDB) scan(rows *sql.Rows, err error, res *[]models.SystemUser, ctx string, situation string) error {
+	var item models.SystemUser
+	if err != nil {
+		checkError(err, situation, ctx, "Reading rows")
+		return err
+	}
+	for rows.Next() {
+		var idWarehouse sql.NullInt64
+		err := rows.Scan(&item.ID, &item.Username, &item.Password, &item.Rol, &item.IdPerson, &idWarehouse)
+		item.IdWarehouse = int(idWarehouse.Int64)
+		if err != nil {
+			checkError(err, situation, ctx, "Scan rows")
+			return err
+		} else {
+			*res = append(*res, item)
+		}
+	}
+	return nil
+
 }

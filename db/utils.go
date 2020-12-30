@@ -1,49 +1,18 @@
 package db
 
-func fieldString(fields []string) string {
-	fieldString := ""
-	for i, field := range fields {
-		if i == 0 {
-			fieldString = field
-		} else {
-			fieldString = fieldString + ", " + field
-		}
-	}
-	return fieldString
-}
+import (
+	"fmt"
+	"log"
+	"sync"
+)
 
-func fieldStringInsert(fields []string) string {
-	fieldString := ""
-	for i, field := range fields {
-		if i == 1 {
-			fieldString = field
-		} else if i != 0 {
-			fieldString = fieldString + ", " + field
-		}
-	}
-	return fieldString
-}
+var m = sync.Mutex{}
 
-func valuesString(fields []string) string {
-	values := ""
-	for i, field := range fields {
-		if i == 1 {
-			values = "@" + field
-		} else if i != 0 {
-			values = values + ", @" + field
-		}
+func checkError(err error, operation string, ctx string, description string) {
+	if err != nil {
+		m.Lock()
+		log.Println(fmt.Sprintf("Error: %s en %s, decription: %s", operation, ctx, description))
+		log.Println(err.Error())
+		m.Unlock()
 	}
-	return values
-}
-
-func updatesString(fields []string) string {
-	values := ""
-	for i, field := range fields {
-		if i == 1 {
-			values = field + " = @" + field
-		} else if i != 0 {
-			values = values + ", " + field + " = @" + field
-		}
-	}
-	return values
 }

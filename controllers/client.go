@@ -9,13 +9,22 @@ import (
 	"strconv"
 )
 
-func GetClients(w http.ResponseWriter, r *http.Request) {
+type ClientsController struct{
+	 DB db.ClientDB
+	 PersonDB db.PersonDB
+}
+
+func (c ClientsController) GetAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	res := make([]models.ClientPerson, 0)
 
-	clients := db.GetClients()
+	clients, err := c.DB.GetAll()
+	if err != nil {
+		returnErr(w, err, "obtener todos")
+		return
+	}
 	for _, cli := range clients {
-		person := db.GetPerson(strconv.Itoa(int(cli.IdPerson)))[0]
+		person, _ := c.PersonDB.Get(strconv.Itoa(int(cli.IdPerson)))
 		item := models.ClientPerson{
 			ID:       cli.ID,
 			PersonID: int64(person.ID),
@@ -33,31 +42,33 @@ func GetClients(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(res)
 }
 
-func GetClient(w http.ResponseWriter, r *http.Request) {
+func (c ClientsController) Get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 
-	items := db.GetClient(id)
-	var userPerson models.ClientPerson
-	if len(items) > 0 {
-		person := db.GetPerson(strconv.Itoa(int(items[0].IdPerson)))
-		userPerson = models.ClientPerson{
-			ID:       items[0].ID,
-			PersonID: int64(person[0].ID),
-			Cel:      person[0].Cel,
-			Type:     items[0].Type,
-			Name:     person[0].Name,
-			LastName: person[0].LastName,
-			Phone:    person[0].Phone,
-			Address:  person[0].Address,
-			Dni:      person[0].Dni,
-			Mail:     person[0].Mail,
-		}
+	items, err := c.DB.Get(id)
+	if err != nil {
+		returnErr(w, err, "obtener")
+		return
 	}
+		person, _ := c.PersonDB.Get(strconv.Itoa(int(items.IdPerson)))
+		userPerson := models.ClientPerson{
+			ID:       items.ID,
+			PersonID: int64(person.ID),
+			Cel:      person.Cel,
+			Type:     items.Type,
+			Name:     person.Name,
+			LastName: person.LastName,
+			Phone:    person.Phone,
+			Address:  person.Address,
+			Dni:      person.Dni,
+			Mail:     person.Mail,
+		}
+
 	_ = json.NewEncoder(w).Encode(userPerson)
 }
-func CreateClient(w http.ResponseWriter, r *http.Request) {
+func (c ClientsController) Create(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var item models.ClientPerson
@@ -71,20 +82,25 @@ func CreateClient(w http.ResponseWriter, r *http.Request) {
 		Dni:      item.Dni,
 		Mail:     item.Mail,
 	}
-	idPerson, err := db.CreatePerson(person)
-	checkError(err, "Created", "Person")
+	idPerson, err := c.PersonDB.Create(person)
+	if err != nil {
+		returnErr(w, err, "crear person")
+		return
+	}
 	client := models.Client{
-		IdPerson: int(idPerson),
+		IdPerson: idPerson,
 		Type:     item.Type,
 	}
-	result, err := db.CreateClient(client)
-	checkError(err, "Created", "Client")
-
+	result, err := c.DB.Create(client)
+	if err != nil {
+		returnErr(w, err, "crear")
+		return
+	}
 	_ = json.NewEncoder(w).Encode(result)
 }
 
 
-func UpdateClient(w http.ResponseWriter, r *http.Request) {
+func (c ClientsController) Update(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var params = mux.Vars(r)
@@ -93,7 +109,7 @@ func UpdateClient(w http.ResponseWriter, r *http.Request) {
 	var item models.ClientPerson
 
 	_ = json.NewDecoder(r.Body).Decode(&item)
-	item.ID, _ = strconv.Atoi(id)
+
 
 	person := models.Person{
 		ID:       int(item.PersonID),
@@ -106,28 +122,44 @@ func UpdateClient(w http.ResponseWriter, r *http.Request) {
 		Mail:     item.Mail,
 	}
 
-	result, err := db.UpdatePerson(person)
+	result, err := c.PersonDB.Update(strconv.Itoa(int(item.PersonID)), person)
+
+	if err != nil {
+		returnErr(w, err, "actualizar person")
+		return
+	}
 
 	client := models.Client{
 		ID:       item.ID,
 		Type:     item.Type,
-		IdPerson: int(item.PersonID),
+		IdPerson: item.PersonID,
 	}
 
-	result, err = db.UpdateClient(client)
+	result, err = c.DB.Update(id, client)
 
-	checkError(err, "Updated", "Client")
+	if err != nil {
+		returnErr(w, err, "actualizar")
+		return
+	}
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-func DeleteClient(w http.ResponseWriter, r *http.Request) {
+func (c ClientsController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
-	client := db.GetClient(id)[0]
-	result, err := db.DeletePerson(strconv.Itoa(int(client.IdPerson)))
-	result, err = db.DeleteClient(id)
-	checkError(err, "Deleted", "Client")
+	client, _ := c.DB.Get(id)
+	result, err := c.PersonDB.Delete(strconv.Itoa(int(client.IdPerson)))
+	if err != nil {
+		returnErr(w, err, "eliminar person")
+		return
+	}
+	result, err = c.DB.Delete(id)
+	if err != nil {
+		returnErr(w, err, "eliminar")
+		return
+	}
+
 
 	_ = json.NewEncoder(w).Encode(result)
 }

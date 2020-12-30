@@ -5,74 +5,91 @@ import (
 	"github.com/XelaMP/inventoryholo-api/db"
 	"github.com/XelaMP/inventoryholo-api/models"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"strconv"
 )
 
-func GetProducts(w http.ResponseWriter, r *http.Request) {
+type ProductController struct{
+	DB db.ProductDB
+}
+
+
+func (p ProductController) GetAllStock(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	items := db.GetProducts()
+	var params = mux.Vars(r)
+	id, _ := params["id"]
+	items, err := p.DB.GetAllStock(id)
+	if err != nil {
+		returnErr(w, err, "obtener todos")
+		return
+	}
+
 	_ = json.NewEncoder(w).Encode(items)
 }
 
-func GetProduct(w http.ResponseWriter, r *http.Request) {
+func (p ProductController) GetAll(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	items, err := p.DB.GetAll()
+	if err != nil {
+		returnErr(w, err, "obtener")
+		return
+	}
+	_ = json.NewEncoder(w).Encode(items)
+}
+
+func (p ProductController) Get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 
-		items := db.GetProduct(id)
-		var product models.Product
-	if len(items) > 0 {
-			product = models.Product{
-				ID:          items[0].ID,
-				Name:        items[0].Name,
-				Description: items[0].Description,
-				Price:       items[0].Price,
-				Stock:       items[0].Stock,
-				IdCategory:  items[0].IdCategory,
-			}
+
+	items, err := p.DB.Get(id)
+	if err != nil {
+		returnErr(w, err, "obtener")
+		return
 	}
-	_ = json.NewEncoder(w).Encode(product)
+	_ = json.NewEncoder(w).Encode(items)
 }
 
-func CreateProduct(w http.ResponseWriter, r *http.Request) {
+func (p ProductController) Create(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var item models.Product
 	_ = json.NewDecoder(r.Body).Decode(&item)
-	result, err := db.CreateProduct(item)
+	result, err := p.DB.Create(item)
 	if err != nil {
-		log.Println(err)
+		returnErr(w, err, "crear")
+		return
 	}
-
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-func UpdateProduct(w http.ResponseWriter, r *http.Request) {
+func (p ProductController) Update(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
+
 	var item models.Product
 	_ = json.NewDecoder(r.Body).Decode(&item)
+
 	item.ID, _ = strconv.Atoi(id)
-	result, err := db.UpdateProduct(item)
+	result, err := p.DB.Update(item)
 	if err != nil {
-		log.Println(err)
+		returnErr(w, err, "actualizar")
+		return
 	}
-
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-func DeleteProduct(w http.ResponseWriter, r *http.Request) {
+func (p ProductController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
-	result, err := db.DeleteProduct(id)
+	result, err := p.DB.Delete(id)
 	if err != nil {
-		log.Println(err)
+		returnErr(w, err, "eliminar")
+		return
 	}
 
 	_ = json.NewEncoder(w).Encode(result)
 }
-

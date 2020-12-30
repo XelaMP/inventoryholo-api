@@ -5,61 +5,47 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/XelaMP/inventoryholo-api/models"
-	"log"
 )
 
-func GetCategorys() []models.Category {
-	res := make([]models.Category, 0)
-	var item models.Category
-
-	tsql := fmt.Sprintf(queryCategory["list"].Q)
-	rows, err := DB.Query(tsql)
-
-	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
-		}
-	}
-	defer rows.Close()
-	return res
+type CategoryDB struct {
+	Ctx string // contexto, lugar, se usa para el log del error
+	Query models.QueryDB // son los string de consulta a la BD
 }
 
-func GetCategory(id string) []models.Category {
+func (db CategoryDB)GetAll() ([]models.Category, error ) {
 	res := make([]models.Category, 0)
-	var item models.Category
 
-	tsql := fmt.Sprintf(queryCategory["get"].Q, id)
+	tsql := fmt.Sprintf(db.Query["list"].Q)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
-		}
+		return res, err
 	}
 	defer rows.Close()
-	return res
+	return res, nil
+
+
+}
+
+func (db CategoryDB) Get(id string) (models.Category, error) {
+	res := make([]models.Category, 0)
+
+	tsql := fmt.Sprintf(db.Query["get"].Q, id)
+	rows, err := DB.Query(tsql)
+
+	err = db.scan(rows, err, &res, db.Ctx, "Get")
+	if err != nil {
+		return models.Category{}, err
+	}
+	defer rows.Close()
+	return res[0], nil
 }
 
 
-func CreateCategory(item models.Category) (int64, error) {
+func (db CategoryDB) Create(item models.Category) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryCategory["insert"].Q)
+	tsql := fmt.Sprintf(db.Query["insert"].Q)
 	fmt.Println(tsql)
 	result, err := DB.ExecContext(
 		ctx,
@@ -71,13 +57,13 @@ func CreateCategory(item models.Category) (int64, error) {
 	return result.RowsAffected()
 }
 
-func UpdateCategory(item models.Category) (int64, error) {
+func (db CategoryDB) Update(id string, item models.Category) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryCategory["update"].Q)
+	tsql := fmt.Sprintf(db.Query["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
-		sql.Named("ID", item.ID),
+		sql.Named("ID", id),
 		sql.Named("Name", item.Name))
 	if err != nil {
 		return -1, err
@@ -85,9 +71,9 @@ func UpdateCategory(item models.Category) (int64, error) {
 	return result.RowsAffected()
 }
 
-func DeleteCategory(id string) (int64, error) {
+func (db CategoryDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryCategory["delete"].Q)
+	tsql := fmt.Sprintf(db.Query["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -96,4 +82,23 @@ func DeleteCategory(id string) (int64, error) {
 		return -1, err
 	}
 	return result.RowsAffected()
+}
+
+func (db CategoryDB) scan( rows *sql.Rows, err error, res *[]models.Category, ctx string, situation string) error {
+		var item models.Category
+	if err != nil {
+		checkError(err, situation, ctx, "Reading rows")
+		return err
+	}
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.Name)
+		if err != nil {
+			checkError(err, situation, ctx, "Scan rows")
+			return err
+		} else {
+			*res = append(*res, item)
+		}
+	}
+	return nil
+
 }

@@ -9,61 +9,99 @@ import (
 	"strconv"
 )
 
-func GetMovementsWarehouse(w http.ResponseWriter, r *http.Request) {
+type MovementController struct{
+	DB db.MovementDB
+}
+
+func (m MovementController) GetAllWarehouseFilter(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var item models.Filter
+	_ = json.NewDecoder(r.Body).Decode(&item)
+
+	items, err := m.DB.GetAllWarehouseFilter(item)
+	if err != nil {
+		returnErr(w, err, "obtener todos warehouse filter")
+		return
+	}
+	_ = json.NewEncoder(w).Encode(items)
+}
+
+func (m MovementController) GetAllWarehouse(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["idWarehouse"]
 
-	items := db.GetMovementsWarehouse(id)
+	items, err := m.DB.GetAllWarehouse(id)
+	if err != nil {
+		returnErr(w, err, "obtener todos warehouse")
+		return
+	}
 	_ = json.NewEncoder(w).Encode(items)
 }
 
-func GetMovements(w http.ResponseWriter, r *http.Request) {
+func (m MovementController) GetAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	items := db.GetMovements()
+	items, err := m.DB.GetAll()
+	if err != nil {
+		returnErr(w, err, "obtener todos")
+		return
+	}
 	_ = json.NewEncoder(w).Encode(items)
 }
 
-func GetMovement(w http.ResponseWriter, r *http.Request) {
+func (m MovementController) Get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 
-	items := db.GetMovement(id)
+	items, err := m.DB.Get(id)
+	if err != nil {
+		returnErr(w, err, "obtener")
+		return
+	}
 
-	_ = json.NewEncoder(w).Encode(items[0])
+	_ = json.NewEncoder(w).Encode(items)
 }
 
-func CreateMovement(w http.ResponseWriter, r *http.Request) {
+func (m MovementController) Create(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var item models.Movement
-	_ = json.NewDecoder(r.Body).Decode(&item)
-	result, err := db.CreateMovement(item)
-	checkError(err, "Created", "Movement")
 
+	_ = json.NewDecoder(r.Body).Decode(&item)
+
+	result, err := m.DB.Create(item)
+	if err != nil {
+		returnErr(w, err, "crear")
+		return
+	}
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-func UpdateMovement(w http.ResponseWriter, r *http.Request) {
+func (m MovementController) Update(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
 	var item models.Movement
 	_ = json.NewDecoder(r.Body).Decode(&item)
 	item.ID, _ = strconv.Atoi(id)
-	result, err := db.UpdateMovement(item)
-	checkError(err, "Updated", "Movement")
-
+	result, err := m.DB.Update(id, item)
+	if err != nil {
+		returnErr(w, err, "actualizar")
+		return
+	}
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-func DeleteMovement(w http.ResponseWriter, r *http.Request) {
+func (m MovementController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
 	id, _ := params["id"]
-	result, err := db.DeleteMovement(id)
-	checkError(err, "Deleted", "Movement")
+	result, err := m.DB.Delete(id)
+	if err != nil {
+		returnErr(w, err, "eliminar")
+		return
+	}
 
 	_ = json.NewEncoder(w).Encode(result)
 }

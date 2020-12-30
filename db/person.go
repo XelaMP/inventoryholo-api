@@ -5,60 +5,45 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/XelaMP/inventoryholo-api/models"
-	"log"
 )
 
-func GetPersons() []models.Person {
-	res := make([]models.Person, 0)
-	var item models.Person
-
-	tsql := fmt.Sprintf(queryPerson["list"].Q)
-	rows, err := DB.Query(tsql)
-
-	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name, &item.LastName, &item.Cel, &item.Phone, &item.Address, &item.Dni, &item.Mail)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
-		}
-	}
-	defer rows.Close()
-	return res
-}
-func GetPerson(id string) []models.Person {
-	res := make([]models.Person, 0)
-	var item models.Person
-
-	tsql := fmt.Sprintf(queryPerson["get"].Q, id)
-	rows, err := DB.Query(tsql)
-
-	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name, &item.LastName, &item.Cel, &item.Phone, &item.Address, &item.Dni, &item.Mail)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
-		}
-	}
-	defer rows.Close()
-	return res
+type PersonDB struct {
+	Ctx string
+	Query models.QueryDB
 }
 
-func CreatePerson(item models.Person) (int64, error) {
+func (db PersonDB) GetAll() ([]models.Person, error){
+	res := make([]models.Person, 0)
+
+	tsql := fmt.Sprintf(db.Query["list"].Q)
+	rows, err := DB.Query(tsql)
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
+	if err != nil {
+		return res, err
+	}
+
+	defer rows.Close()
+	return res, nil
+
+}
+func (db PersonDB) Get(id string) (models.Person, error) {
+	res := make([]models.Person, 0)
+
+	tsql := fmt.Sprintf(db.Query["get"].Q, id)
+	rows, err := DB.Query(tsql)
+
+	err = db.scan(rows, err, &res, db.Ctx, "Get")
+	if err != nil {
+		return models.Person{}, err
+	}
+	defer rows.Close()
+	return res[0], nil
+}
+
+func (db PersonDB) Create(item models.Person) (int64, error) {
 	ctx := context.Background()
-	tsql := queryPerson["insert"].Q + "select isNull(SCOPE_IDENTITY(),-1);"
-	fmt.Println(tsql)
+	tsql := db.Query["insert"].Q + "select isNull(SCOPE_IDENTITY(),-1);"
+
 	stmt, err := DB.Prepare(tsql)
 	if err != nil {
 		return -1, err
@@ -82,14 +67,14 @@ func CreatePerson(item models.Person) (int64, error) {
 	return newID, nil
 
 }
-func UpdatePerson(item models.Person) (int64, error) {
+func (db PersonDB) Update(id string, item models.Person) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryPerson["update"].Q)
-	fmt.Println(tsql)
+	tsql := fmt.Sprintf(db.Query["update"].Q)
+
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
-		sql.Named("IdPerson", item.ID),
+		sql.Named("ID", item.ID),
 		sql.Named("Name", item.Name),
 		sql.Named("LastName", item.LastName),
 		sql.Named("Cel", item.Cel),
@@ -100,14 +85,12 @@ func UpdatePerson(item models.Person) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
-
 	return result.RowsAffected()
-
 }
 
-func DeletePerson (id string) (int64, error) {
+func (db PersonDB) Delete (id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryPerson["delete"].Q)
+	tsql := fmt.Sprintf(db.Query["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -116,6 +99,25 @@ func DeletePerson (id string) (int64, error) {
 		return -1, err
 	}
 	return result.RowsAffected()
+}
+
+func (db PersonDB) scan(rows *sql.Rows, err error, res *[]models.Person, ctx string, situation string) error{
+	var item models.Person
+	if err != nil {
+		checkError(err, situation, ctx, "Reading rows")
+		return err
+	}
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.Name, &item.LastName, &item.Cel, &item.Phone, &item.Address, &item.Dni, &item.Mail)
+		if err != nil {
+			checkError(err, situation, ctx, "Scan rows")
+			return err
+		} else {
+			*res = append(*res, item)
+		}
+	}
+	return nil
+
 }
 
 

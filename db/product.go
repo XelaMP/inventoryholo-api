@@ -5,94 +5,93 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/XelaMP/inventoryholo-api/models"
-	"log"
 )
 
-func GetProducts() [] models.Product {
-	res := make([]models.Product, 0)
-	var item models.Product
+type ProductDB struct {
+	Ctx   string
+	Query models.QueryDB
 
-	tsql := fmt.Sprintf(QueryProduct["list"].Q)
-	rows, err := DB.Query(tsql)
-
-	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name, &item.Description, &item.Price, &item.Stock)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
-		}
-	}
-	defer rows.Close()
-	return res
 }
 
-func GetProduct(id string) []models.Product {
+func (db ProductDB) GetAllStock(idWarehouse string) ([]models.Product, error) {
 	res := make([]models.Product, 0)
-	var item models.Product
 
-	tsql := fmt.Sprintf(QueryProduct["get"].Q, id)
+	tsql := fmt.Sprintf(db.Query["list"].Q)
 	rows, err := DB.Query(tsql)
 
+	err = db.scan(rows, err, &res, db.Ctx, "GetAllStock", idWarehouse)
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.Name, &item.Description, &item.Price, &item.Stock, &item.IdCategory)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
-		}
+		return res, err
 	}
 	defer rows.Close()
-	return res
+	return res, nil
 }
 
-func CreateProduct(item models.Product) (int64, error) {
+func (db ProductDB) GetAll() ([]models.Product, error) {
+	res := make([]models.Product, 0)
+
+	tsql := fmt.Sprintf(db.Query["list"].Q)
+	rows, err := DB.Query(tsql)
+
+	err = db.scan(rows, err, &res, db.Ctx, "GetAllStock", "")
+	if err != nil {
+		return res, err
+	}
+	defer rows.Close()
+	return res, nil
+}
+
+func (db ProductDB) Get(id string) (models.Product, error) {
+	res := make([]models.Product, 0)
+
+	tsql := fmt.Sprintf(db.Query["get"].Q, id)
+	rows, err := DB.Query(tsql)
+
+	err = db.scan(rows, err, &res, db.Ctx, "GetAllStock", "")
+	if err != nil {
+		return models.Product{}, err
+	}
+	defer rows.Close()
+	return res[0], nil
+}
+
+func (db ProductDB) Create(item models.Product) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(QueryProduct["insert"].Q)
+	tsql := fmt.Sprintf(db.Query["insert"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
 		sql.Named("Name", item.Name),
-		sql.Named("description", item.Description),
+		sql.Named("Description", item.Description),
 		sql.Named("Price", item.Price),
 		sql.Named("Stock", item.Stock),
-		sql.Named("IdCategory",item.IdCategory))
+		sql.Named("IdCategory", item.IdCategory))
 	if err != nil {
 		return -1, err
 	}
 	return result.RowsAffected()
 }
-func UpdateProduct(item models.Product) (int64, error) {
+func (db ProductDB) Update(item models.Product) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(QueryProduct["update"].Q)
+	tsql := fmt.Sprintf(db.Query["update"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
 		sql.Named("ID", item.ID),
 		sql.Named("Name", item.Name),
-		sql.Named("description",item.Description),
+		sql.Named("Description", item.Description),
 		sql.Named("Price", item.Price),
-		sql.Named("Stock",item.Stock),
-		sql.Named("IdCategory",item.IdCategory))
+		sql.Named("Stock", item.Stock),
+		sql.Named("IdCategory", item.IdCategory))
 
 	if err != nil {
 		return -1, err
 	}
 	return result.RowsAffected()
 }
-func DeleteProduct(id string) (int64, error) {
+func (db ProductDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(QueryProduct["delete"].Q)
+	tsql := fmt.Sprintf(db.Query["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -101,4 +100,27 @@ func DeleteProduct(id string) (int64, error) {
 		return -1, err
 	}
 	return result.RowsAffected()
+}
+
+func (db ProductDB) scan(rows *sql.Rows, err error, res *[]models.Product, ctx string,
+	situation string, extra string) error {
+	var item models.Product
+	if err != nil {
+		checkError(err, situation, ctx, "Reading rows")
+		return err
+	}
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.Name, &item.Description, &item.Price, &item.Stock, &item.IdCategory)
+		if err != nil {
+			checkError(err, situation, ctx, "Scan rows")
+			return err
+		} else {
+			if extra != "" {
+				item.Stock = GetStock(extra, item.ID)
+			}
+			*res = append(*res, item)
+		}
+	}
+	return nil
+
 }

@@ -5,94 +5,86 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/XelaMP/inventoryholo-api/models"
-	"log"
+	"github.com/XelaMP/inventoryholo-api/query"
+	"strconv"
+	"time"
 )
 
-func GetMovementsWarehouse(idWarehouse string) []models.Movement {
-	res := make([]models.Movement, 0)
-	var item models.Movement
-
-	tsql := fmt.Sprintf(queryMovement["listWarehouseId"].Q, idWarehouse)
-	rows, err := DB.Query(tsql)
-
-	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse, &item.Date, &item.Quantity, &item.Type,
-			&item.IdUser, &item.IdClient)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
-		}
-	}
-	defer rows.Close()
-	return res
-}
-func GetMovements() []models.Movement {
-	res := make([]models.Movement, 0)
-	var item models.Movement
-
-	tsql := fmt.Sprintf(queryMovement["list"].Q)
-	rows, err := DB.Query(tsql)
-
-	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse,&item.IdUser,&item.IdClient, &item.Date, &item.Quantity, &item.Type)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
-		}
-	}
-	defer rows.Close()
-	return res
+type MovementDB struct {
+	Ctx   string
+	Query models.QueryDB
 }
 
-func GetMovement(id string) []models.Movement {
+func (db MovementDB) GetAllWarehouseFilter(filter models.Filter) ([]models.Movement, error) {
 	res := make([]models.Movement, 0)
-	var item models.Movement
 
-	tsql := fmt.Sprintf(queryMovement["get"].Q, id)
+	tsql := fmt.Sprintf(db.Query["listWarehouseFilter"].Q, filter.ID, filter.Type, filter.DateFrom, filter.DateTo)
 	rows, err := DB.Query(tsql)
-
+	err = db.scan(rows, err, &res, db.Ctx, "GetAllWarehouseFilter")
 	if err != nil {
-		fmt.Println("Error reading rows: " + err.Error())
-		return res
-	}
-	for rows.Next(){
-		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse,&item.IdUser,&item.IdClient, &item.Date, &item.Quantity, &item.Type)
-		if err != nil {
-			log.Println(err)
-			return res
-		} else{
-			res = append(res, item)
-		}
+		return res, err
 	}
 	defer rows.Close()
-	return res
+	return res, err
+
 }
 
+func (db MovementDB) GetAllWarehouse(idWarehouse string) ([]models.Movement, error) {
+	res := make([]models.Movement, 0)
 
-func CreateMovement(item models.Movement) (int64, error) {
+	tsql := fmt.Sprintf(db.Query["listWarehouseId"].Q, idWarehouse)
+	rows, err := DB.Query(tsql)
+
+	err = db.scan(rows, err, &res, db.Ctx, "GetAllWarehouse")
+	if err != nil {
+		return res, err
+	}
+	defer rows.Close()
+	return res, err
+}
+func (db MovementDB) GetAll() ([]models.Movement, error) {
+	res := make([]models.Movement, 0)
+
+	tsql := fmt.Sprintf(db.Query["list"].Q)
+	rows, err := DB.Query(tsql)
+
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
+	if err != nil {
+		return res, err
+	}
+	defer rows.Close()
+	return res, nil
+
+}
+
+func (db MovementDB) Get(id string) (models.Movement, error) {
+	res := make([]models.Movement, 0)
+
+	tsql := fmt.Sprintf(db.Query["get"].Q, id)
+	rows, err := DB.Query(tsql)
+
+	err = db.scan(rows, err, &res, db.Ctx, "GetAll")
+	if err != nil {
+		return models.Movement{}, err
+	}
+	defer rows.Close()
+	return res[0], nil
+}
+
+func (db MovementDB) Create(item models.Movement) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryMovement["insert"].Q)
-	fmt.Println(tsql)
+	tsql := fmt.Sprintf(db.Query["insert"].Q)
+	date, err := time.Parse(time.RFC3339, item.Date+"T05:00:00Z")
+	checkError(err, "Create", db.Ctx, "Convert Date")
+
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
 		sql.Named("IdProduct", item.IdProduct),
-		sql.Named("IdWareHouse", item.IdWarehouse),
+		sql.Named("IdWarehouse", item.IdWarehouse),
 		sql.Named("IdUser", item.IdUser),
 		sql.Named("IdClient", item.IdClient),
-		sql.Named("Date", item.Date),
+		sql.Named("Date", date),
 		sql.Named("Quantity", item.Quantity),
 		sql.Named("Type", item.Type))
 
@@ -102,18 +94,21 @@ func CreateMovement(item models.Movement) (int64, error) {
 	return result.RowsAffected()
 }
 
-func UpdateMovement(item models.Movement) (int64, error) {
+func (db MovementDB) Update(id string, item models.Movement) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryMovement["update"].Q)
+	tsql := fmt.Sprintf(db.Query["update"].Q)
+	date, err := time.Parse(time.RFC3339, item.Date+"T05:00:00Z")
+	checkError(err, "Update", db.Ctx, "Convert Date")
+
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
-		sql.Named("ID", item.ID),
+		sql.Named("ID", id),
 		sql.Named("IdProduct", item.IdProduct),
-		sql.Named("IdWareHouse", item.IdWarehouse),
+		sql.Named("IdWarehouse", item.IdWarehouse),
 		sql.Named("IdUser", item.IdUser),
 		sql.Named("IdClient", item.IdClient),
-		sql.Named("Date", item.Date),
+		sql.Named("Date", date),
 		sql.Named("Quantity", item.Quantity),
 		sql.Named("Type", item.Type))
 
@@ -123,9 +118,9 @@ func UpdateMovement(item models.Movement) (int64, error) {
 	return result.RowsAffected()
 }
 
-func DeleteMovement(id string) (int64, error) {
+func (db MovementDB) Delete(id string) (int64, error) {
 	ctx := context.Background()
-	tsql := fmt.Sprintf(queryMovement["delete"].Q)
+	tsql := fmt.Sprintf(db.Query["delete"].Q)
 	result, err := DB.ExecContext(
 		ctx,
 		tsql,
@@ -134,4 +129,52 @@ func DeleteMovement(id string) (int64, error) {
 		return -1, err
 	}
 	return result.RowsAffected()
+}
+
+func GetStock(idWarehouse string, idProduct int) float64 {
+	var item float64
+
+	tsql := fmt.Sprintf(query.Movement["stock"].Q, idWarehouse, idProduct)
+	rows, err := DB.Query(tsql)
+
+	if err != nil {
+		checkError(err, "GetStock", "Movement DB", "Reading rows")
+		return 0
+	}
+	for rows.Next() {
+		var stock sql.NullFloat64
+		err := rows.Scan(&stock)
+		item = stock.Float64
+		if err != nil {
+			checkError(err, "GetStock", "Movement DB", "Scan rows")
+			return 0
+		}
+	}
+	defer rows.Close()
+	return item
+}
+
+func (db MovementDB) scan(rows *sql.Rows, err error, res *[]models.Movement, ctx string, situation string) error {
+	var item models.Movement
+	if err != nil {
+		checkError(err, situation, ctx, "Reading rows")
+		return err
+	}
+
+	for rows.Next() {
+		err := rows.Scan(&item.ID, &item.IdProduct, &item.IdWarehouse, &item.IdUser,
+			&item.IdClient, &item.Date, &item.Quantity, &item.Type)
+		if err != nil {
+			checkError(err, situation, ctx, "Scan rows")
+			return err
+		} else {
+			product, _ := ProductDB{
+				Ctx:   "Movement",
+				Query: query.Product,
+			}.Get(strconv.Itoa(item.IdProduct))
+			item.Product = product.Name
+			*res = append(*res, item)
+		}
+	}
+	return nil
 }
