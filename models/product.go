@@ -1,6 +1,6 @@
 package models
 
-type Product struct {
+type 	Product struct {
 	ID          int     `json:"_id"`
 	Name        string  `json:"name"`
 	Description string  `json:"description"`

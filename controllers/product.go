@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/XelaMP/inventoryholo-api/db"
 	"github.com/XelaMP/inventoryholo-api/models"
 	"github.com/gorilla/mux"
@@ -84,8 +85,11 @@ func (p ProductController) Update(w http.ResponseWriter, r *http.Request) {
 func (p ProductController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var params = mux.Vars(r)
+
 	id, _ := params["id"]
 	result, err := p.DB.Delete(id)
+	fmt.Printf("aqui el ",err)
+
 	if err != nil {
 		returnErr(w, err, "eliminar")
 		return
