@@ -43,6 +43,8 @@ func main() {
 				"http://192.241.159.224",
 				"http://resultados.holosalud.org",
 				"https://resultados.holosalud.org",
+				"https://inventario.holosalud.org",
+
 			},
 			AllowCredentials: true,
 			AllowedMethods:   []string{"POST", "GET", "OPTIONS", "PUT", "DELETE"},
